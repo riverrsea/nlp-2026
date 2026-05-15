@@ -1,0 +1,45 @@
+本项目目标：
+基于仓库 data/ 目录中的中文文本分类数据集，实现 NLP 期末大作业实验。该数据集按类别文件夹组织，每个 .txt 或 .TXT 文件是一篇文本，父目录名就是文本类别标签。
+
+data/ 目录下共有 10 个类别：
+1. art-248              艺术
+2. computer-200         计算机
+3. economy-325          经济
+4. transportation-214   交通
+5. education-220        教育
+6. environment-200      环境
+7. sports-450           体育
+8. military-249         军事
+9. politics-505         政治
+10. medicine-204        医药
+
+总体要求：
+1. 按三个阶段完成项目：第一阶段：数据探索与表征；第二阶段：工程框架构建与模型建模；第三阶段：训练、验证与测试分析。
+2. 验证集统一命名为 val，不要使用 dev。
+3. 数据划分文件必须命名为 train.csv、val.csv、test.csv。
+4. 所有模型超参数必须保存在 cfg/*.yaml 配置文件中。
+5. 环境参数和运行参数通过 argparse 命令行参数传入。
+6. 提供统一入口 src/main.py。
+7. 提供 scripts/*.sh 启动脚本调用 main.py。
+8. main.py 需要支持 mode=train 和 mode=test。
+9. mode=train 表示完整流程：训练、验证、保存最佳模型、测试。
+10. mode=test 表示只加载 checkpoint 并在 test.csv 上测试。
+11. 每个阶段完成后都要保证代码可以运行。
+12. 每个阶段都要满足对应验收标准。
+
+工程整体要求：
+1. 生成 requirements.txt。
+2. requirements.txt 至少包含：pandas、numpy、scikit-learn、jieba、matplotlib、seaborn、torch、transformers、tqdm、pyyaml。
+3. 所有路径都要通过 cfg 文件或命令行参数管理，不要写死绝对路径。
+4. 所有输出目录不存在时自动创建。
+5. 设置随机种子，保证结果尽量可复现。
+6. 所有脚本需要有清晰的命令行参数和默认值。
+7. 所有脚本需要有基本日志输出，说明当前运行到哪一步。
+8. 不要只写伪代码，请尽量生成可以直接运行的完整代码。
+9. 若某些功能依赖外部文件，例如预训练词向量或 HuggingFace 模型，请实现清晰的参数接口和错误提示。
+
+推荐执行顺序：
+1. 先执行 01_stage1_data_exploration.txt；
+2. 再执行 02_stage2_engineering_framework.txt；
+3. 再执行 03_stage2_model_building.txt；
+4. 最后执行 04_stage3_training_validation_testing.txt。

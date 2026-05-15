@@ -1,0 +1,65 @@
+请基于当前仓库完成第二阶段的第二部分：模型建模。
+
+仓库地址：
+https://github.com/riverrsea/nlp-2026.git
+
+前提：
+1. 第一阶段已经生成 outputs/data/train.csv、outputs/data/val.csv、outputs/data/test.csv。
+2. 第二阶段第一部分已经构建整体工程框架：src/main.py、cfg/*.yaml、scripts/*.sh、src/trainers/、src/models/。
+注意：验证集统一命名为 val，不要使用 dev。
+
+阶段目标：
+在统一工程框架下实现 TF-IDF + SVM、TextCNN、BERT Fine-tuning、BERT Prompt Learning 和 GPT Prompt Learning 接口。
+
+==================== 模型一：TF-IDF + SVM ====================
+要求：使用 train.csv、val.csv、test.csv；使用 jieba 对中文文本分词；使用 TfidfVectorizer 提取文本特征；使用 LinearSVC 或 SVM 进行 10 分类；支持配置 max_features、ngram_range、C；输出预测类别和评估结果；通过 src/main.py 调用，对应 cfg/svm.yaml 和 src/trainers/svm_trainer.py。
+
+==================== 模型二：TextCNN ====================
+请实现 TextCNN 文本分类模型。
+模型结构：文本 → 分词 → token id → Embedding → 多尺度卷积层 → Max Pooling → Dropout → 全连接层 → 10 类 logits。
+要求：Embedding 层；多尺度卷积层，kernel_size 使用 3、4、5；Max Pooling；Dropout；Linear 分类层；num_classes = 10；支持 max_len、batch_size、learning_rate、epoch；支持 GPU，如果没有 GPU 则自动使用 CPU；模型结构放在 src/models/textcnn.py；训练逻辑放在 src/trainers/textcnn_trainer.py。
+
+==================== TextCNN 的两个版本 ====================
+需要实现两个 TextCNN 版本。
+版本一：TextCNN-Random：Embedding 层随机初始化，Embedding 参数参与训练。
+版本二：TextCNN-Pretrained：支持加载外部中文 Word2Vec / FastText / 腾讯词向量；使用预训练词向量初始化 Embedding 层；对于词表中找不到预训练向量的词，随机初始化；默认 Embedding 参数参与训练；预训练词向量路径通过命令行参数 --pretrained_path 传入；如果没有提供预训练词向量路径，程序需要给出清晰提示，而不是直接崩溃。
+
+公平对比要求：TextCNN-Random 和 TextCNN-Pretrained 除 Embedding 初始化方式不同外，其他设置必须保持一致，包括相同 train/val/test、相同 vocab、相同 max_len、相同 embedding_dim、相同 kernel_size、相同 num_filters、相同 dropout、相同 batch_size、相同 learning_rate、相同 epoch、相同 optimizer、相同 random seed。
+
+==================== 模型三：BERT Fine-tuning ====================
+请实现 BERT 文本分类模型。要求：使用 HuggingFace Transformers；默认模型为 bert-base-chinese；支持通过 --model_name_or_path 指定本地模型路径；支持切换 hfl/chinese-roberta-wwm-ext；使用 AutoTokenizer；使用 AutoModelForSequenceClassification；num_labels = 10；max_length 可配置，默认 256；支持 batch_size、learning_rate、epoch；使用 AdamW；在 val.csv 上选择最佳模型；在 test.csv 上评估最佳模型；训练逻辑放在 src/trainers/bert_trainer.py。
+如果当前环境无法下载 HuggingFace 模型，程序需要提示用户指定本地模型路径，不能影响 SVM 和 TextCNN 的正常运行。
+
+==================== 模型四：BERT Prompt Learning ====================
+请实现 BERT Prompt Learning 框架。要求：使用 Masked Language Model；Prompt 模板：“这是一篇关于[MASK]的文章：{text}”；label words：art -> 艺术，computer -> 计算机，economy -> 经济，transportation -> 交通，education -> 教育，environment -> 环境，sports -> 体育，military -> 军事，politics -> 政治，medicine -> 医药；根据 [MASK] 位置上各标签词的概率进行分类；支持 zero-shot；支持 few-shot；few-shot 时从 train.csv 中每类抽取 k 条示例；k 可通过 cfg 或命令行参数配置；逻辑放在 src/trainers/prompt_bert_trainer.py。
+
+==================== 模型五：GPT Prompt Learning 接口 ====================
+请实现 GPT Prompt Learning 的可扩展接口。
+Prompt 模板：
+请判断下面文本属于哪个类别：
+类别包括：艺术、计算机、经济、交通、教育、环境、体育、军事、政治、医药。
+文本：{text}
+答案：
+要求：支持 zero-shot；支持 few-shot；few-shot 时从 train.csv 中每类抽取 k 条示例；如果当前环境没有本地 GPT 模型或 API key，请保留清晰的接口；README.md 中说明如何接入本地生成式模型或 API；不要让缺少 GPT 环境导致整个项目无法运行；逻辑放在 src/trainers/prompt_gpt_trainer.py。
+
+==================== 第二阶段输出文件 ====================
+第二阶段至少应能生成 outputs/results/svm_results.json 和 outputs/predictions/svm_predictions.csv。
+如果运行 TextCNN-Random，则生成 outputs/results/textcnn_random_results.json 和 outputs/predictions/textcnn_random_predictions.csv。
+如果提供预训练词向量并运行 TextCNN-Pretrained，则生成 outputs/results/textcnn_pretrained_results.json 和 outputs/predictions/textcnn_pretrained_predictions.csv。
+如果运行 BERT，则生成 outputs/results/bert_results.json 和 outputs/predictions/bert_predictions.csv。
+如果运行 Prompt，则生成 outputs/results/prompt_results.json 和 outputs/predictions/prompt_predictions.csv。
+
+==================== 第二阶段模型验收标准 ====================
+1. 可以运行 TF-IDF + SVM：bash scripts/run_svm.sh 或 python src/main.py --config cfg/svm.yaml --mode train --output_dir outputs。
+2. 运行 TF-IDF + SVM 后生成 svm_results.json 和 svm_predictions.csv。
+3. 可以运行 TextCNN-Random：bash scripts/run_textcnn_random.sh 或 python src/main.py --config cfg/textcnn_random.yaml --mode train --output_dir outputs。
+4. TextCNN-Random 能够正常训练至少 1 个 epoch，不报错。
+5. TextCNN-Random 运行后生成 textcnn_random_results.json 和 textcnn_random_predictions.csv。
+6. 可以通过参数运行 TextCNN-Pretrained：python src/main.py --config cfg/textcnn_pretrained.yaml --mode train --output_dir outputs --pretrained_path path/to/vector.txt。
+7. 如果 pretrained_path 不存在，程序必须输出清晰错误提示，不允许出现不可读的 traceback。
+8. TextCNN-Random 和 TextCNN-Pretrained 必须共用同一个 vocab 和同一套超参数配置，除 Embedding 初始化方式外不应有其他差异。
+9. 可以运行 BERT Fine-tuning，且如果当前环境不能下载 HuggingFace 模型，程序需要提示用户指定本地模型路径。
+10. BERT 相关代码不能影响 SVM 和 TextCNN 的正常运行。
+11. 可以运行 BERT Prompt。
+12. GPT Prompt 接口可以运行到提示“需要配置模型或 API”，但不能导致整个项目失败。
+13. README.md 中必须说明每个模型如何运行。

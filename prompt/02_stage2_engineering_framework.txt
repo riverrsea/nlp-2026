@@ -1,0 +1,135 @@
+请基于当前仓库完成第二阶段的第一部分：整体工程框架构建。
+
+前提：第一阶段已经或将会生成 outputs/data/train.csv、outputs/data/val.csv、outputs/data/test.csv。
+注意：验证集统一命名为 val，不要使用 dev。
+
+阶段目标：
+在搭建具体模型之前，先构建一个规范的整体工程框架。项目需要采用 main.py 作为统一入口，使用 cfg/*.yaml 管理模型和训练超参，使用 argparse 接收运行环境参数，使用 scripts/*.sh 启动实验。
+
+==================== 工程框架要求 ====================
+
+请构建如下项目结构：
+
+cfg/
+├── svm.yaml
+├── textcnn_random.yaml
+├── textcnn_pretrained.yaml
+├── bert.yaml
+├── prompt_bert.yaml
+└── prompt_gpt.yaml
+
+scripts/
+├── run_data_prepare.sh
+├── run_svm.sh
+├── run_textcnn_random.sh
+├── run_textcnn_pretrained.sh
+├── run_bert.sh
+├── run_prompt_bert.sh
+├── run_prompt_gpt.sh
+└── test_model.sh
+
+src/
+├── main.py
+├── config.py
+├── utils.py
+├── data_prepare.py
+├── dataset.py
+├── evaluate.py
+├── trainers/
+│   ├── svm_trainer.py
+│   ├── textcnn_trainer.py
+│   ├── bert_trainer.py
+│   ├── prompt_bert_trainer.py
+│   └── prompt_gpt_trainer.py
+└── models/
+    └── textcnn.py
+
+outputs/
+├── data/
+├── figures/
+├── results/
+├── predictions/
+└── checkpoints/
+
+requirements.txt
+README.md
+
+==================== main.py 要求 ====================
+请提供统一入口 src/main.py。main.py 使用 argparse 解析命令行参数，至少支持：
+--config：配置文件路径，例如 cfg/textcnn_random.yaml
+--mode：运行模式，可选 train 或 test
+--data_dir：原始数据目录，默认 data
+--output_dir：输出目录，默认 outputs
+--device：运行设备，默认 auto，自动选择 cuda 或 cpu
+--seed：随机种子
+--checkpoint：测试模式下加载的模型路径
+--pretrained_path：TextCNN-Pretrained 使用的预训练词向量路径
+--model_name_or_path：BERT 使用的预训练模型名称或本地路径
+
+main.py 需要完成：读取 yaml 配置文件；合并命令行参数和配置文件；设置随机种子；创建输出目录；根据 cfg 中的 model_name 选择对应 trainer；根据 --mode 选择 train 或 test。
+model_name 取值建议：svm、textcnn、bert、prompt_bert、prompt_gpt。
+
+==================== mode=train 要求 ====================
+mode=train 表示完整训练流程：读取 train.csv、val.csv、test.csv；在 train.csv 上训练；在 val.csv 上验证；根据 val macro-F1 保存最佳模型；加载最佳模型；在 test.csv 上测试；保存测试结果；保存预测文件；保存训练曲线，如果该模型有训练曲线。
+
+==================== mode=test 要求 ====================
+mode=test 表示只测试：读取 test.csv；加载 --checkpoint 指定的模型；在 test.csv 上评估；保存测试结果；保存预测文件。如果 checkpoint 不存在，请给出清晰错误提示。
+
+==================== cfg 配置文件要求 ====================
+模型超参数和训练超参数必须放在 cfg/*.yaml 中，不要写死在代码里。
+
+例如 textcnn_random.yaml 至少包含：
+
+experiment_name: textcnn_random
+model_name: textcnn
+embedding_type: random
+
+data:
+  train_file: outputs/data/train.csv
+  val_file: outputs/data/val.csv
+  test_file: outputs/data/test.csv
+  max_len: 512
+
+model:
+  vocab_min_freq: 2
+  embedding_dim: 300
+  num_filters: 128
+  kernel_sizes: [3, 4, 5]
+  dropout: 0.5
+  num_classes: 10
+
+train:
+  batch_size: 32
+  epochs: 10
+  learning_rate: 0.001
+  optimizer: adam
+  loss: cross_entropy
+  early_stop_patience: 3
+  metric_for_best_model: macro_f1
+
+eval:
+  metrics:
+    - accuracy
+    - macro_precision
+    - macro_recall
+    - macro_f1
+
+其他 cfg 文件也要类似组织。
+
+==================== scripts 启动脚本要求 ====================
+请在 scripts/ 中提供启动脚本。例如 scripts/run_textcnn_random.sh：
+
+#!/bin/bash
+python src/main.py   --config cfg/textcnn_random.yaml   --mode train   --data_dir data   --output_dir outputs   --device auto
+
+scripts/run_textcnn_pretrained.sh 类似，但需要增加 --pretrained_path path/to/vector.txt。
+
+==================== 工程框架验收标准 ====================
+1. 存在 src/main.py。
+2. main.py 可以正常解析：python src/main.py --config cfg/svm.yaml --mode train --output_dir outputs
+3. 存在 cfg/ 目录，并至少包含 svm.yaml、textcnn_random.yaml、textcnn_pretrained.yaml、bert.yaml、prompt_bert.yaml、prompt_gpt.yaml。
+4. 存在 scripts/ 目录，并至少包含 run_data_prepare.sh、run_svm.sh、run_textcnn_random.sh、run_textcnn_pretrained.sh、run_bert.sh、run_prompt_bert.sh、run_prompt_gpt.sh、test_model.sh。
+5. main.py 根据 cfg 中的 model_name 能够选择对应 trainer。
+6. 如果某个 trainer 尚未完整实现，也要给出清晰的 NotImplementedError 或提示，不能静默失败。
+7. README.md 中必须说明工程结构、cfg 配置方式、main.py 参数含义、scripts 使用方式。
+8. 生成 requirements.txt，至少包含 pandas、numpy、scikit-learn、jieba、matplotlib、seaborn、torch、transformers、tqdm、pyyaml。

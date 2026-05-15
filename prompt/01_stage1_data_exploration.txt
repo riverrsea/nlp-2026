@@ -1,0 +1,90 @@
+请基于当前目录完成第一阶段：数据探索与表征。
+
+阶段目标：
+读取 data/ 目录中的原始文本数据，构建统一数据表，完成文本清洗、类别统计、文本长度统计、训练/验证/测试划分，并为后续模型准备基础输入。
+
+重要命名要求：
+1. 验证集统一命名为 val。
+2. 输出文件必须是 train.csv、val.csv、test.csv。
+3. 不要使用 dev 这个名称。
+
+==================== 第一阶段任务要求 ====================
+
+1. 读取数据集
+遍历 data/ 目录下的所有类别文件夹。每个 .txt 或 .TXT 文件作为一条样本。
+每条样本需要包含：text、label、label_id、file_path。
+父目录名格式类似 art-248、computer-200、economy-325，请从父目录名中提取类别名，例如 art-248 -> art。
+
+2. 标签映射
+请建立固定的 label2id：
+label2id = {
+    "art": 0,
+    "computer": 1,
+    "economy": 2,
+    "transportation": 3,
+    "education": 4,
+    "environment": 5,
+    "sports": 6,
+    "military": 7,
+    "politics": 8,
+    "medicine": 9
+}
+同时建立 id2label。
+
+3. 文件读取兼容性
+文件后缀可能是 .txt 或 .TXT。文件编码可能不完全统一。请优先尝试 utf-8，如果失败，再尝试 gb18030、gbk。如果某个文件无法读取，请记录 warning，不要让整个程序崩溃。
+
+4. 文本清洗
+做基础清洗即可，不要过度清洗。需要处理：多余空行、连续空格、制表符、异常控制字符、首尾空白字符。不要删除标题、正文、发信人、信区、发信站等可能对分类有用的信息。
+
+5. 数据统计分析
+需要统计：总样本数、类别总数、每个类别的样本数量、每个类别占比、文本长度最小值、最大值、平均值、中位数、50%/75%/90%/95% 分位数。文本长度可以按字符数统计，也可以额外统计分词后的 token 数。
+
+6. 可视化图表
+请绘制并保存：类别样本数量柱状图、文本长度分布图。
+保存路径：
+outputs/figures/class_distribution.png
+outputs/figures/length_distribution.png
+
+7. 数据集划分
+按照 train : val : test = 8 : 1 : 1 划分。必须使用分层划分 stratify，保证 train/val/test 中 10 个类别比例基本一致。
+保存为：
+outputs/data/train.csv
+outputs/data/val.csv
+outputs/data/test.csv
+每个 csv 至少包含：text,label,label_id,file_path。
+
+8. 文本表征准备
+请为后续模型准备基础接口：为 TF-IDF + SVM 准备 jieba 分词函数；为 TextCNN 准备中文分词、词表构建、token id 转换、padding、truncation 接口；为 TextCNN 后续对比随机 Embedding 和预训练 Word Vectors 预留接口；为 BERT 准备 tokenizer 输入接口，但第一阶段不要求真正训练 BERT。
+注意：随机初始化 Embedding 与预训练 Word Vectors 的性能对比不要在第一阶段孤立完成。第一阶段只准备数据和接口。真正对比要放在第二阶段搭建的 TextCNN 模型中，并在第三阶段训练验证。
+
+==================== 第一阶段建议代码结构 ====================
+请生成或维护以下文件：
+src/config.py
+src/utils.py
+src/data_prepare.py
+src/dataset.py
+其中 config.py 保存路径、标签映射、随机种子等基础配置；utils.py 保存通用工具函数，如读取文本、清洗文本、创建目录、设置随机种子等；data_prepare.py 完成数据读取、统计、划分、保存；dataset.py 准备后续深度学习模型需要的数据集类或处理函数。
+
+==================== 第一阶段输出文件 ====================
+必须生成：
+outputs/data/all_data.csv
+outputs/data/train.csv
+outputs/data/val.csv
+outputs/data/test.csv
+outputs/results/data_statistics.json
+outputs/figures/class_distribution.png
+outputs/figures/length_distribution.png
+README.md 中必须增加第一阶段运行说明。
+
+==================== 第一阶段验收标准 ====================
+1. 可以运行：python src/data_prepare.py
+2. 运行后自动创建 outputs/ 目录及其子目录。
+3. 成功生成 all_data.csv、train.csv、val.csv、test.csv、data_statistics.json、class_distribution.png、length_distribution.png。
+4. all_data.csv 中必须包含 text、label、label_id、file_path。
+5. train.csv、val.csv、test.csv 中都必须包含 10 个类别。
+6. data_statistics.json 中必须包含 total_samples、num_classes、class_distribution、length_statistics、label2id、id2label。
+7. 类别总数必须为 10。
+8. 程序需要兼容 .txt 和 .TXT 文件。
+9. 如果遇到无法读取的文件，需要记录 warning，不要让整个程序崩溃。
+10. README.md 中必须说明如何运行第一阶段，以及每个输出文件的含义。

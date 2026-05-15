@@ -1,0 +1,45 @@
+seed: 42
+
+paths:
+  data_dir: data
+  output_dir: outputs
+  data_subdir: data
+  figures_subdir: figures
+  results_subdir: results
+  all_data_filename: all_data.csv
+  train_filename: train.csv
+  val_filename: val.csv
+  test_filename: test.csv
+  statistics_filename: data_statistics.json
+  class_distribution_figure: class_distribution.png
+  length_distribution_figure: length_distribution.png
+
+split:
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+
+processing:
+  encoding_candidates:
+    - utf-8
+    - gb18030
+    - gbk
+  textcnn:
+    min_freq: 1
+    max_vocab_size: 30000
+    max_length: 256
+    pad_token: "<PAD>"
+    unk_token: "<UNK>"
+  bert:
+    model_name_or_path: bert-base-chinese
+    max_length: 256
+    padding: max_length
+    truncation: true
+
+plot:
+  width: 1400
+  height: 900
+  histogram_bins: 30
+
+logging:
+  level: INFO

@@ -1,0 +1,105 @@
+请基于当前仓库完成第三阶段：训练、验证与测试分析。
+
+仓库地址：
+https://github.com/riverrsea/nlp-2026.git
+
+前提：
+1. 第一阶段已经生成 outputs/data/train.csv、outputs/data/val.csv、outputs/data/test.csv。
+2. 第二阶段已经完成工程框架和模型实现：src/main.py、cfg/*.yaml、scripts/*.sh、src/trainers/、src/models/。
+注意：验证集统一命名为 val，不要使用 dev。
+
+阶段目标：
+统一训练和评估所有模型，生成对比结果、训练曲线、混淆矩阵和错误案例分析，形成可以用于 PPT 汇报的实验材料。
+
+==================== 第三阶段任务要求 ====================
+
+1. 统一评估指标
+所有模型都需要输出 Accuracy、Macro Precision、Macro Recall、Macro F1、每个类别的 Precision、Recall、F1、classification_report、confusion_matrix。请将 Macro F1 作为重点指标。
+
+2. 训练并评估 TF-IDF + SVM
+在 train.csv 上训练；在 val.csv 上调参或选择参数；在 test.csv 上评估；保存预测结果和评估结果。
+
+3. 训练并评估 TextCNN-Random
+使用 CrossEntropyLoss；使用 Adam；默认 learning_rate = 1e-3；默认 batch_size = 32 或 64；默认 epoch = 10；保存最佳模型；记录 train loss、val loss、val accuracy、val macro-F1；保存训练曲线。
+
+4. 训练并评估 TextCNN-Pretrained
+与 TextCNN-Random 使用完全相同的超参数；只改变 Embedding 初始化方式；保存最佳模型；记录 train loss、val loss、val accuracy、val macro-F1；保存训练曲线；在 test.csv 上评估；与 TextCNN-Random 做性能对比。
+
+5. 训练并评估 BERT Fine-tuning
+使用 AdamW；默认 learning_rate = 2e-5；默认 batch_size = 8 或 16；默认 epoch = 3；默认 max_length = 256；在 val.csv 上保存 macro-F1 最高的模型；在 test.csv 上评估；保存训练曲线。
+
+6. 运行 Prompt Learning 实验
+至少支持 BERT Prompt Zero-shot、BERT Prompt Few-shot、GPT Prompt Zero-shot 接口、GPT Prompt Few-shot 接口。Prompt 实验也要在 test.csv 上评估。
+
+7. 生成最终模型对比表
+请生成 outputs/results/all_model_comparison.csv，格式如下：
+model,accuracy,macro_precision,macro_recall,macro_f1
+TF-IDF + SVM,,,,
+TextCNN-Random,,,,
+TextCNN-Pretrained,,,,
+BERT Fine-tuning,,,,
+BERT Prompt Zero-shot,,,,
+BERT Prompt Few-shot,,,,
+GPT Prompt Zero-shot,,,,
+GPT Prompt Few-shot,,,,
+
+8. 绘制训练曲线
+至少保存：outputs/figures/textcnn_random_loss.png、textcnn_random_accuracy.png、textcnn_pretrained_loss.png、textcnn_pretrained_accuracy.png、bert_loss.png、bert_accuracy.png。如果某个模型没有运行，可以跳过对应图，但需要在日志中说明。
+
+9. 绘制混淆矩阵
+对表现最好的模型绘制混淆矩阵。保存为 outputs/figures/confusion_matrix.png。横轴为预测类别，纵轴为真实类别。类别名清晰可读，可以使用中文类别名或英文类别名，但要保持一致。
+
+10. Case Study 错误案例分析
+从最佳模型在 test.csv 上的错误预测中挑选 2 到 3 个典型样本。每个样本需要包含：原始文本片段、真实标签、预测标签、错误原因分析。保存为 outputs/results/case_study.md。
+
+11. 最终 README
+README.md 需要包含：项目简介、数据集格式说明、三个阶段说明、工程框架说明、cfg 配置文件说明、main.py 参数说明、如何运行数据准备、如何训练 TF-IDF + SVM、如何训练 TextCNN-Random、如何训练 TextCNN-Pretrained、如何训练 BERT、如何运行 Prompt Learning、输出文件说明、如何查看最终模型对比结果、常见问题，例如 HuggingFace 模型无法下载、预训练词向量路径缺失等。
+
+==================== 第三阶段输出文件 ====================
+最终至少应生成：
+outputs/results/all_model_comparison.csv
+outputs/figures/confusion_matrix.png
+outputs/results/case_study.md
+
+同时根据运行的模型，生成：
+outputs/results/svm_results.json
+outputs/results/textcnn_random_results.json
+outputs/results/textcnn_pretrained_results.json
+outputs/results/bert_results.json
+outputs/results/prompt_results.json
+outputs/predictions/svm_predictions.csv
+outputs/predictions/textcnn_random_predictions.csv
+outputs/predictions/textcnn_pretrained_predictions.csv
+outputs/predictions/bert_predictions.csv
+outputs/predictions/prompt_predictions.csv
+outputs/figures/textcnn_random_loss.png
+outputs/figures/textcnn_random_accuracy.png
+outputs/figures/textcnn_pretrained_loss.png
+outputs/figures/textcnn_pretrained_accuracy.png
+outputs/figures/bert_loss.png
+outputs/figures/bert_accuracy.png
+
+==================== 第三阶段验收标准 ====================
+1. 可以完成至少以下三个模型的完整训练、验证与测试：TF-IDF + SVM、TextCNN-Random、TextCNN-Pretrained。
+2. 如果 BERT 模型因环境无法下载，可以保留代码和运行说明，但不能影响前三个模型的运行。
+3. 必须生成 outputs/results/all_model_comparison.csv。
+4. all_model_comparison.csv 中至少包含 TF-IDF + SVM、TextCNN-Random、TextCNN-Pretrained 三行。
+5. 每个已运行模型必须包含 Accuracy、Macro Precision、Macro Recall、Macro F1。
+6. 必须生成至少一个混淆矩阵图 outputs/figures/confusion_matrix.png。
+7. 必须生成错误案例分析 outputs/results/case_study.md。
+8. case_study.md 中至少包含 2 个错误样本分析。
+9. TextCNN-Random 和 TextCNN-Pretrained 的对比必须单独出现在 all_model_comparison.csv 中。
+10. TextCNN-Random 和 TextCNN-Pretrained 的超参数必须保持一致，除 Embedding 初始化方式外不能改变其他关键设置。
+11. README.md 必须说明如何复现实验结果。
+
+==================== 建议运行顺序 ====================
+请在 README.md 中写明推荐运行顺序：
+1. 数据准备：bash scripts/run_data_prepare.sh 或 python src/data_prepare.py
+2. 训练传统模型：bash scripts/run_svm.sh 或 python src/main.py --config cfg/svm.yaml --mode train --output_dir outputs
+3. 训练 TextCNN-Random：bash scripts/run_textcnn_random.sh 或 python src/main.py --config cfg/textcnn_random.yaml --mode train --output_dir outputs
+4. 训练 TextCNN-Pretrained：bash scripts/run_textcnn_pretrained.sh 或 python src/main.py --config cfg/textcnn_pretrained.yaml --mode train --output_dir outputs --pretrained_path path/to/vector.txt
+5. 训练 BERT：bash scripts/run_bert.sh 或 python src/main.py --config cfg/bert.yaml --mode train --model_name_or_path bert-base-chinese --output_dir outputs
+6. 运行 BERT Prompt：bash scripts/run_prompt_bert.sh
+7. 运行 GPT Prompt：bash scripts/run_prompt_gpt.sh
+8. 只测试某个模型：bash scripts/test_model.sh 或 python src/main.py --config cfg/textcnn_random.yaml --mode test --checkpoint outputs/checkpoints/textcnn_random_best.pt --output_dir outputs
+9. 查看最终结果：outputs/results/all_model_comparison.csv
