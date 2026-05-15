@@ -1,0 +1,36 @@
+experiment_name: svm_baseline
+model_name: svm
+
+data:
+  train_file: outputs/data/train.csv
+  val_file: outputs/data/val.csv
+  test_file: outputs/data/test.csv
+  max_len: 512
+
+model:
+  tokenizer: jieba
+  max_features: 50000
+  ngram_range: [1, 2]
+  min_df: 2
+  c: 1.0
+  kernel: linear
+  num_classes: 10
+
+train:
+  batch_size: 32
+  epochs: 1
+  learning_rate: 0.001
+  optimizer: liblinear
+  loss: hinge
+  early_stop_patience: 3
+  metric_for_best_model: macro_f1
+
+eval:
+  metrics:
+    - accuracy
+    - macro_precision
+    - macro_recall
+    - macro_f1
+
+logging:
+  level: INFO

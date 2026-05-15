@@ -8,6 +8,7 @@ import random
 import re
 import struct
 import zlib
+from collections import Counter
 from pathlib import Path
 from typing import Iterable, List, Mapping, Sequence
 
@@ -56,8 +57,8 @@ FONT_5X7 = {
 }
 
 
-def setup_logging(level: str = "INFO") -> logging.Logger:
-    logger = logging.getLogger("data_prepare")
+def setup_logging(level: str = "INFO", name: str = "data_prepare") -> logging.Logger:
+    logger = logging.getLogger(name)
     if logger.handlers:
         logger.setLevel(level.upper())
         return logger
@@ -81,6 +82,13 @@ def create_dir(path: str | Path) -> Path:
 def ensure_directories(paths: Iterable[str | Path]) -> None:
     for path in paths:
         create_dir(path)
+
+
+def ensure_file_exists(path: str | Path, description: str = "File") -> Path:
+    file_path = Path(path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"{description} not found: {file_path}")
+    return file_path
 
 
 def set_seed(seed: int) -> None:
@@ -182,8 +190,48 @@ def write_csv(
 def save_json(data: Mapping[str, object], output_path: str | Path) -> None:
     path = Path(output_path)
     create_dir(path.parent)
+
+    def _json_default(value: object) -> str:
+        if isinstance(value, Path):
+            return str(value)
+        raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
+
     with path.open("w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=2)
+        json.dump(
+            data,
+            file,
+            ensure_ascii=False,
+            indent=2,
+            default=_json_default,
+        )
+
+
+def read_csv_rows(input_path: str | Path) -> list[dict[str, str]]:
+    path = ensure_file_exists(input_path, description="CSV file")
+    with path.open("r", encoding="utf-8-sig", newline="") as file:
+        reader = csv.DictReader(file)
+        return [dict(row) for row in reader]
+
+
+def summarize_rows_by_label(
+    rows: Sequence[Mapping[str, object]],
+    label_key: str = "label",
+) -> dict[str, int]:
+    counts = Counter(str(row[label_key]) for row in rows)
+    return dict(sorted(counts.items(), key=lambda item: item[0]))
+
+
+def resolve_device(requested_device: str = "auto") -> str:
+    normalized = requested_device.lower()
+    if normalized != "auto":
+        return requested_device
+
+    try:
+        import torch  # type: ignore
+
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    except Exception:
+        return "cpu"
 
 
 def quantile(values: Sequence[int], q: float) -> float:

@@ -1,0 +1,32 @@
+experiment_name: bert_baseline
+model_name: bert
+model_name_or_path: bert-base-chinese
+
+data:
+  train_file: outputs/data/train.csv
+  val_file: outputs/data/val.csv
+  test_file: outputs/data/test.csv
+  max_len: 512
+
+model:
+  hidden_dropout_prob: 0.1
+  num_classes: 10
+
+train:
+  batch_size: 16
+  epochs: 3
+  learning_rate: 2.0e-5
+  optimizer: adamw
+  loss: cross_entropy
+  early_stop_patience: 2
+  metric_for_best_model: macro_f1
+
+eval:
+  metrics:
+    - accuracy
+    - macro_precision
+    - macro_recall
+    - macro_f1
+
+logging:
+  level: INFO

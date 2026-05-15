@@ -1,0 +1,37 @@
+experiment_name: prompt_gpt
+model_name: prompt_gpt
+
+data:
+  train_file: outputs/data/train.csv
+  val_file: outputs/data/val.csv
+  test_file: outputs/data/test.csv
+  max_len: 512
+
+model:
+  api_model: gpt-4.1-mini
+  temperature: 0.0
+  max_output_tokens: 64
+  prompt_template: |
+    你是中文文本分类助手。
+    请从以下 10 个类别中选择最合适的一个：
+    art, computer, economy, transportation, education, environment, sports, military, politics, medicine
+    只输出类别英文名，不要输出其他内容。
+
+train:
+  batch_size: 1
+  epochs: 1
+  learning_rate: 0.0
+  optimizer: none
+  loss: none
+  early_stop_patience: 0
+  metric_for_best_model: macro_f1
+
+eval:
+  metrics:
+    - accuracy
+    - macro_precision
+    - macro_recall
+    - macro_f1
+
+logging:
+  level: INFO
