@@ -1,4 +1,4 @@
-experiment_name: svm_baseline
+experiment_name: svm
 model_name: svm
 
 data:

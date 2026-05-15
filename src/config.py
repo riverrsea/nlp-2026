@@ -74,6 +74,7 @@ DEFAULT_DATA_PREPARE_CONFIG: Dict[str, Any] = {
 
 DEFAULT_EXPERIMENT_CONFIG: Dict[str, Any] = {
     "experiment_name": "experiment",
+    "output_name": None,
     "model_name": "",
     "mode": "train",
     "seed": 42,
@@ -81,6 +82,9 @@ DEFAULT_EXPERIMENT_CONFIG: Dict[str, Any] = {
     "checkpoint": None,
     "pretrained_path": None,
     "model_name_or_path": None,
+    "prompt": {
+        "few_shot_k": 0,
+    },
     "paths": {
         "data_dir": "data",
         "output_dir": "outputs",
@@ -203,6 +207,14 @@ def _finalize_experiment_config(config: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError("`model_name` must be defined in the YAML config.")
 
     experiment_name = config.get("experiment_name") or "experiment"
+    prompt_cfg = config.setdefault("prompt", {})
+    prompt_cfg["few_shot_k"] = int(prompt_cfg.get("few_shot_k", 0))
+
+    output_name = config.get("output_name")
+    if output_name is None and config.get("model_name") == "prompt_bert":
+        output_name = "prompt" if prompt_cfg["few_shot_k"] == 0 else "prompt_fewshot"
+    if output_name is None:
+        output_name = experiment_name
     paths = config.setdefault("paths", {})
 
     data_dir = _resolve_path(paths.get("data_dir", "data"))
@@ -228,6 +240,8 @@ def _finalize_experiment_config(config: Dict[str, Any]) -> Dict[str, Any]:
     paths["predictions_dir"] = predictions_dir
     paths["checkpoints_dir"] = checkpoints_dir
     paths["experiment_checkpoint_dir"] = experiment_checkpoint_dir
+    paths["results_file"] = results_dir / f"{output_name}_results.json"
+    paths["predictions_file"] = predictions_dir / f"{output_name}_predictions.csv"
     paths["train_results_file"] = results_dir / f"{experiment_name}_train_results.json"
     paths["test_results_file"] = results_dir / f"{experiment_name}_test_results.json"
     paths["train_framework_note_file"] = (
@@ -263,7 +277,6 @@ def _finalize_experiment_config(config: Dict[str, Any]) -> Dict[str, Any]:
     if model_name_or_path is None:
         model_name_or_path = config.get("model", {}).get("model_name_or_path")
     config["model_name_or_path"] = _resolve_if_local_path(model_name_or_path)
-
     return _attach_label_maps(config)
 
 

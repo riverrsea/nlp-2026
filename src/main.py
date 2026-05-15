@@ -68,6 +68,12 @@ def parse_args() -> argparse.Namespace:
         help="Pretrained model name or local path for BERT-based models.",
     )
     parser.add_argument(
+        "--few_shot_k",
+        type=int,
+        default=None,
+        help="Number of few-shot examples per class for prompt-based methods.",
+    )
+    parser.add_argument(
         "--log_level",
         type=str,
         default=None,
@@ -94,6 +100,8 @@ def build_overrides(args: argparse.Namespace) -> Dict[str, Any]:
         overrides["pretrained_path"] = args.pretrained_path
     if args.model_name_or_path is not None:
         overrides["model_name_or_path"] = args.model_name_or_path
+    if args.few_shot_k is not None:
+        overrides["prompt"] = {"few_shot_k": args.few_shot_k}
     if args.log_level is not None:
         overrides["logging"] = {"level": args.log_level}
 

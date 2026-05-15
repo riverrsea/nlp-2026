@@ -15,6 +15,7 @@ model:
   num_filters: 128
   kernel_sizes: [3, 4, 5]
   dropout: 0.5
+  freeze_embeddings: false
   num_classes: 10
 
 train:

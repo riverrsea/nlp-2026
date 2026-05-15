@@ -4,6 +4,7 @@ import csv
 import json
 import logging
 import math
+import os
 import random
 import re
 import struct
@@ -213,6 +214,42 @@ def read_csv_rows(input_path: str | Path) -> list[dict[str, str]]:
         return [dict(row) for row in reader]
 
 
+def save_prediction_rows(
+    rows: Sequence[Mapping[str, object]],
+    predictions: Sequence[int],
+    id2label: Mapping[int, str],
+    output_path: str | Path,
+) -> None:
+    if len(rows) != len(predictions):
+        raise ValueError("The number of rows and predictions must match.")
+
+    prediction_rows: list[dict[str, object]] = []
+    for row, pred_label_id in zip(rows, predictions):
+        prediction_rows.append(
+            {
+                "text": row.get("text", ""),
+                "label": row.get("label", ""),
+                "label_id": row.get("label_id", ""),
+                "pred_label": id2label[int(pred_label_id)],
+                "pred_label_id": int(pred_label_id),
+                "file_path": row.get("file_path", ""),
+            }
+        )
+
+    write_csv(
+        prediction_rows,
+        fieldnames=[
+            "text",
+            "label",
+            "label_id",
+            "pred_label",
+            "pred_label_id",
+            "file_path",
+        ],
+        output_path=output_path,
+    )
+
+
 def summarize_rows_by_label(
     rows: Sequence[Mapping[str, object]],
     label_key: str = "label",
@@ -232,6 +269,103 @@ def resolve_device(requested_device: str = "auto") -> str:
         return "cuda" if torch.cuda.is_available() else "cpu"
     except Exception:
         return "cpu"
+
+
+def save_training_curve(
+    history: Mapping[str, Sequence[float]],
+    output_path: str | Path,
+    title: str = "Training Curve",
+) -> None:
+    if not history:
+        return
+
+    try:
+        os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+        import matplotlib.pyplot as plt  # type: ignore
+    except Exception:
+        return
+
+    path = Path(output_path)
+    create_dir(path.parent)
+    plt.figure(figsize=(10, 6))
+    for metric_name, values in history.items():
+        if not values:
+            continue
+        epochs = list(range(1, len(values) + 1))
+        plt.plot(epochs, list(values), marker="o", label=metric_name)
+    plt.xlabel("Epoch")
+    plt.ylabel("Value")
+    plt.title(title)
+    plt.legend()
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(path)
+    plt.close()
+
+
+def save_metric_curve(
+    values: Sequence[float],
+    output_path: str | Path,
+    title: str,
+    y_label: str,
+) -> None:
+    if not values:
+        return
+
+    try:
+        os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+        import matplotlib.pyplot as plt  # type: ignore
+    except Exception:
+        return
+
+    path = Path(output_path)
+    create_dir(path.parent)
+    epochs = list(range(1, len(values) + 1))
+    plt.figure(figsize=(10, 6))
+    plt.plot(epochs, list(values), marker="o")
+    plt.xlabel("Epoch")
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(path)
+    plt.close()
+
+
+def save_confusion_matrix_figure(
+    matrix: Sequence[Sequence[int]],
+    labels: Sequence[str],
+    output_path: str | Path,
+    title: str = "Confusion Matrix",
+) -> None:
+    if not matrix or not labels:
+        return
+
+    try:
+        os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+        import matplotlib.pyplot as plt  # type: ignore
+        import numpy as np  # type: ignore
+        import seaborn as sns  # type: ignore
+    except Exception:
+        return
+
+    path = Path(output_path)
+    create_dir(path.parent)
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(
+        np.asarray(matrix, dtype=int),
+        annot=True,
+        fmt="d",
+        cmap="Blues",
+        xticklabels=list(labels),
+        yticklabels=list(labels),
+    )
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig(path)
+    plt.close()
 
 
 def quantile(values: Sequence[int], q: float) -> float:

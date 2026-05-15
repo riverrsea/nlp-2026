@@ -1,6 +1,9 @@
 experiment_name: prompt_gpt
 model_name: prompt_gpt
 
+prompt:
+  few_shot_k: 0
+
 data:
   train_file: outputs/data/train.csv
   val_file: outputs/data/val.csv
@@ -12,10 +15,10 @@ model:
   temperature: 0.0
   max_output_tokens: 64
   prompt_template: |
-    你是中文文本分类助手。
-    请从以下 10 个类别中选择最合适的一个：
-    art, computer, economy, transportation, education, environment, sports, military, politics, medicine
-    只输出类别英文名，不要输出其他内容。
+    请判断下面文本属于哪个类别：
+    类别包括：艺术、计算机、经济、交通、教育、环境、体育、军事、政治、医药。
+    文本：{text}
+    答案：
 
 train:
   batch_size: 1

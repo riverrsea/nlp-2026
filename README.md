@@ -1,11 +1,30 @@
 # NLP 期末大作业
 
-本仓库基于 `data/` 目录中的中文文本分类数据集完成课程实验。目前已经完成：
+本仓库基于 `data/` 目录中的中文文本分类数据集完成课程实验，当前已经完成：
 
 - 第一阶段：数据探索与表征
 - 第二阶段第一部分：整体工程框架构建
+- 第二阶段第二部分：模型建模
+- 第三阶段：训练、验证与测试分析（已完成 SVM、TextCNN-Random、TextCNN-Pretrained）
 
 项目统一使用 `val` 作为验证集命名，不使用 `dev`。
+
+## 环境准备
+
+推荐使用当前目录下的虚拟环境：
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+如果还没有虚拟环境：
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## 工程结构
 
@@ -22,6 +41,7 @@ cfg/
 scripts/
 ├── run_data_prepare.sh
 ├── run_stage1_data_prepare.sh
+├── run_stage3_analysis.sh
 ├── run_svm.sh
 ├── run_textcnn_random.sh
 ├── run_textcnn_pretrained.sh
@@ -38,7 +58,6 @@ src/
 ├── dataset.py
 ├── evaluate.py
 ├── trainers/
-│   ├── __init__.py
 │   ├── base_trainer.py
 │   ├── svm_trainer.py
 │   ├── textcnn_trainer.py
@@ -46,47 +65,24 @@ src/
 │   ├── prompt_bert_trainer.py
 │   └── prompt_gpt_trainer.py
 └── models/
-    ├── __init__.py
     └── textcnn.py
 ```
 
-## 环境准备
-
-推荐使用当前目录下的虚拟环境：
-
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-所有依赖已写入 `requirements.txt`，至少包含：
-
-- `pandas`
-- `numpy`
-- `scikit-learn`
-- `jieba`
-- `matplotlib`
-- `seaborn`
-- `torch`
-- `transformers`
-- `tqdm`
-- `pyyaml`
-
 ## 第一阶段：数据探索与表征
 
-推荐执行：
+运行：
 
 ```bash
 python src/data_prepare.py
 ```
 
-也可以使用脚本：
+或：
 
 ```bash
 bash scripts/run_data_prepare.sh
 ```
 
-运行完成后会自动创建 `outputs/` 及其子目录，并生成：
+第一阶段会生成：
 
 - `outputs/data/all_data.csv`
 - `outputs/data/train.csv`
@@ -96,48 +92,47 @@ bash scripts/run_data_prepare.sh
 - `outputs/figures/class_distribution.png`
 - `outputs/figures/length_distribution.png`
 
-其中：
+其中 `all_data.csv`、`train.csv`、`val.csv`、`test.csv` 都包含：
 
-- `all_data.csv` 包含 `text`、`label`、`label_id`、`file_path`
-- `train.csv`、`val.csv`、`test.csv` 为按 `8:1:1` 分层划分后的数据
-- `data_statistics.json` 包含总样本数、类别数、类别分布、长度统计、`label2id`、`id2label`
+- `text`
+- `label`
+- `label_id`
+- `file_path`
 
-## 第二阶段：整体工程框架
+## 统一入口
 
-第二阶段当前已完成统一入口、配置体系、trainer 路由和启动脚本。具体模型训练逻辑会在后续建模阶段继续补齐。
-
-### 统一入口
-
-统一入口为：
+统一入口为 `src/main.py`：
 
 ```bash
 python src/main.py --config cfg/svm.yaml --mode train
 ```
 
-`src/main.py` 当前支持以下参数：
+当前支持的主要参数：
 
 - `--config`：配置文件路径，例如 `cfg/textcnn_random.yaml`
-- `--mode`：运行模式，取值为 `train` 或 `test`
+- `--mode`：`train` 或 `test`
 - `--data_dir`：原始数据目录，默认 `data`
 - `--output_dir`：输出目录，默认 `outputs`
 - `--device`：运行设备，默认 `auto`
 - `--seed`：随机种子
-- `--checkpoint`：`mode=test` 时加载的 checkpoint 路径
-- `--pretrained_path`：TextCNN-Pretrained 使用的预训练词向量路径
-- `--model_name_or_path`：BERT 或 Prompt-BERT 使用的预训练模型名称或本地路径
+- `--checkpoint`：测试模式下加载的 checkpoint 路径
+- `--pretrained_path`：TextCNN-Pretrained 的外部词向量路径
+- `--model_name_or_path`：BERT 或 Prompt-BERT 的预训练模型名称或本地路径
+- `--few_shot_k`：Prompt 方法每类抽取的 few-shot 样本数
 - `--log_level`：日志级别
 
-### cfg 配置方式
+## cfg 配置方式
 
-每个实验使用独立的 `cfg/*.yaml` 管理超参数。配置文件统一包含以下层级：
+每个实验都通过 `cfg/*.yaml` 管理超参数，典型结构包括：
 
-- `experiment_name`：实验名
-- `model_name`：模型名，当前支持 `svm`、`textcnn`、`bert`、`prompt_bert`、`prompt_gpt`
-- `data`：`train_file`、`val_file`、`test_file`、`max_len`
-- `model`：模型结构或推理参数
-- `train`：训练超参数，例如 `batch_size`、`epochs`、`learning_rate`
-- `eval`：评估指标列表
-- `logging`：日志级别
+- `experiment_name`
+- `model_name`
+- `data`
+- `model`
+- `train`
+- `eval`
+- `prompt`
+- `logging`
 
 例如：
 
@@ -153,44 +148,358 @@ data:
   max_len: 512
 ```
 
-### scripts 用法
+## 第二阶段：模型建模
 
-直接运行脚本即可触发对应实验：
+当前已经接入以下模型或接口：
+
+### 1. TF-IDF + SVM
+
+运行：
 
 ```bash
 bash scripts/run_svm.sh
-bash scripts/run_textcnn_random.sh
-bash scripts/run_bert.sh
 ```
 
-如果是 TextCNN 预训练词向量版本：
+或：
+
+```bash
+python src/main.py --config cfg/svm.yaml --mode train --output_dir outputs
+```
+
+功能：
+
+- 使用 `jieba` 分词
+- 使用 `TfidfVectorizer` 提取特征
+- 使用 `LinearSVC` 或 `SVC`
+- 支持 `max_features`、`ngram_range`、`C` 等配置
+- 保存 checkpoint、测试结果和预测文件
+
+主要输出：
+
+- `outputs/results/svm_results.json`
+- `outputs/predictions/svm_predictions.csv`
+- `outputs/checkpoints/svm/svm_best.ckpt`
+
+### 2. TextCNN-Random
+
+运行：
+
+```bash
+bash scripts/run_textcnn_random.sh
+```
+
+或：
+
+```bash
+python src/main.py --config cfg/textcnn_random.yaml --mode train --output_dir outputs
+```
+
+功能：
+
+- 中文分词
+- 词表构建
+- 随机初始化 Embedding
+- 多尺度卷积核 `3/4/5`
+- Max Pooling、Dropout、Linear 分类层
+- 在 `val.csv` 上按 `macro_f1` 选择最佳模型
+
+主要输出：
+
+- `outputs/results/textcnn_random_results.json`
+- `outputs/predictions/textcnn_random_predictions.csv`
+- `outputs/checkpoints/textcnn_random/textcnn_random_best.ckpt`
+- `outputs/results/textcnn_random_history.json`
+- `outputs/figures/textcnn_random_training_curve.png`
+
+### 3. TextCNN-Pretrained
+
+运行：
 
 ```bash
 PRETRAINED_PATH=path/to/vector.txt bash scripts/run_textcnn_pretrained.sh
 ```
 
-如果要测试某个 checkpoint：
+或：
 
 ```bash
-bash scripts/test_model.sh cfg/bert.yaml path/to/checkpoint.ckpt
+python src/main.py \
+  --config cfg/textcnn_pretrained.yaml \
+  --mode train \
+  --output_dir outputs \
+  --pretrained_path path/to/vector.txt
 ```
 
-### 当前框架状态
+说明：
 
-当前 `main.py` 已经能够：
+- 使用与 `TextCNN-Random` 相同的词表构建与训练流程
+- 仅 Embedding 初始化方式不同
+- 如果没有提供合法的 `pretrained_path`，程序会给出清晰错误提示
+- 支持 Word2Vec / FastText / 腾讯词向量等常见文本格式词向量文件
 
-- 读取 YAML 配置并与命令行参数合并
-- 设置随机种子
-- 自动创建 `outputs/data`、`outputs/figures`、`outputs/results`、`outputs/predictions`、`outputs/checkpoints`
-- 根据 `model_name` 路由到对应 trainer
-- 区分 `mode=train` 和 `mode=test`
-- 在 `mode=test` 下对缺失 checkpoint 给出清晰错误提示
+主要输出：
 
-当前 trainer 仍是框架占位实现：
+- `outputs/results/textcnn_pretrained_results.json`
+- `outputs/predictions/textcnn_pretrained_predictions.csv`
+- `outputs/checkpoints/textcnn_pretrained/textcnn_pretrained_best.ckpt`
 
-- 会读取 `train.csv`、`val.csv`、`test.csv`
-- 会检查路径、记录数据规模
-- 会在 `outputs/results/` 下保存框架说明文件
-- 会明确提示“具体模型训练逻辑将在后续阶段实现”
+### 4. BERT Fine-tuning
 
-这一步的目的，是先把工程入口、配置组织和实验启动方式固定下来，后续建模直接接在这套框架上。
+运行：
+
+```bash
+bash scripts/run_bert.sh
+```
+
+或：
+
+```bash
+python src/main.py \
+  --config cfg/bert.yaml \
+  --mode train \
+  --output_dir outputs \
+  --model_name_or_path bert-base-chinese
+```
+
+说明：
+
+- 使用 HuggingFace `AutoTokenizer`
+- 使用 `AutoModelForSequenceClassification`
+- 默认模型是 `bert-base-chinese`
+- 可以切换到 `hfl/chinese-roberta-wwm-ext`
+- 如果当前环境不能从 HuggingFace 下载模型，程序会提示你改用本地模型目录
+
+推荐本地模型运行方式：
+
+```bash
+python src/main.py \
+  --config cfg/bert.yaml \
+  --mode train \
+  --output_dir outputs \
+  --model_name_or_path /path/to/local/bert-base-chinese
+```
+
+主要输出：
+
+- `outputs/results/bert_results.json`
+- `outputs/predictions/bert_predictions.csv`
+- `outputs/checkpoints/bert/bert_best.ckpt`
+
+### 5. BERT Prompt Learning
+
+运行：
+
+```bash
+bash scripts/run_prompt_bert.sh
+```
+
+或 zero-shot：
+
+```bash
+python src/main.py \
+  --config cfg/prompt_bert.yaml \
+  --mode train \
+  --output_dir outputs \
+  --few_shot_k 0
+```
+
+few-shot 示例：
+
+```bash
+python src/main.py \
+  --config cfg/prompt_bert.yaml \
+  --mode train \
+  --output_dir outputs \
+  --few_shot_k 2 \
+  --model_name_or_path /path/to/local/bert-base-chinese
+```
+
+说明：
+
+- 使用 Masked Language Model
+- Prompt 模板为 `这是一篇关于[MASK]的文章：{text}`
+- few-shot 时从 `train.csv` 中每类抽取 `k` 条样本拼接到 prompt 前缀
+- 如果 HuggingFace 模型不可用，会给出明确提示
+
+### 6. GPT Prompt Learning 接口
+
+运行：
+
+```bash
+bash scripts/run_prompt_gpt.sh
+```
+
+或：
+
+```bash
+python src/main.py \
+  --config cfg/prompt_gpt.yaml \
+  --mode train \
+  --output_dir outputs \
+  --few_shot_k 2
+```
+
+说明：
+
+- 当前实现的是“可扩展接口”，不会直接调用远程 GPT API
+- 如果没有本地生成式模型或 API key，程序会输出清晰提示，但不会让整个项目失败
+- 会保存占位结果文件和占位预测文件，方便后续接入真实模型
+
+当前输出：
+
+- `outputs/results/prompt_gpt_results.json`
+- `outputs/predictions/prompt_gpt_predictions.csv`
+
+接入本地模型或 API 的建议方式：
+
+1. 在 `src/trainers/prompt_gpt_trainer.py` 中补充真实推理函数。
+2. 将模型生成的中文类别名映射回固定 10 类标签。
+3. 使用 `BaseTrainer.save_predictions()` 和 `BaseTrainer.save_results()` 保存正式结果。
+
+## 测试已训练模型
+
+统一测试脚本：
+
+```bash
+bash scripts/test_model.sh cfg/svm.yaml outputs/checkpoints/svm/svm_best.ckpt
+```
+
+也可以直接执行：
+
+```bash
+python src/main.py \
+  --config cfg/textcnn_random.yaml \
+  --mode test \
+  --output_dir outputs \
+  --checkpoint outputs/checkpoints/textcnn_random/textcnn_random_best.ckpt
+```
+
+## 第三阶段：训练、验证与测试分析
+
+第三阶段当前已经统一完成以下实验与分析产物：
+
+- `TF-IDF + SVM`
+- `TextCNN-Random`
+- `TextCNN-Pretrained`
+
+`BERT Fine-tuning` 与 `BERT Prompt` 的代码入口已保留，但如果当前环境缺少可用的本地 HuggingFace 模型，可以暂时不运行；这不会影响前三个模型的复现。当前实验汇总脚本默认跳过 `GPT Prompt`。
+
+### 推荐运行顺序
+
+1. 数据准备
+
+```bash
+bash scripts/run_data_prepare.sh
+```
+
+2. 训练传统模型
+
+```bash
+bash scripts/run_svm.sh
+```
+
+3. 训练 TextCNN-Random
+
+```bash
+bash scripts/run_textcnn_random.sh
+```
+
+4. 训练 TextCNN-Pretrained
+
+```bash
+PRETRAINED_PATH=outputs/embeddings/textcnn_pretrained_vocab_only.txt bash scripts/run_textcnn_pretrained.sh
+```
+
+5. 如果具备本地 BERT 模型，再运行 BERT
+
+```bash
+bash scripts/run_bert.sh
+```
+
+6. 生成第三阶段最终汇总材料
+
+```bash
+bash scripts/run_stage3_analysis.sh
+```
+
+### 第三阶段输出
+
+当前已生成或会生成：
+
+- `outputs/results/all_model_comparison.csv`
+- `outputs/figures/confusion_matrix.png`
+- `outputs/results/case_study.md`
+- `outputs/figures/textcnn_random_loss.png`
+- `outputs/figures/textcnn_random_accuracy.png`
+- `outputs/figures/textcnn_pretrained_loss.png`
+- `outputs/figures/textcnn_pretrained_accuracy.png`
+
+模型结果文件：
+
+- `outputs/results/svm_results.json`
+- `outputs/results/textcnn_random_results.json`
+- `outputs/results/textcnn_pretrained_results.json`
+
+模型预测文件：
+
+- `outputs/predictions/svm_predictions.csv`
+- `outputs/predictions/textcnn_random_predictions.csv`
+- `outputs/predictions/textcnn_pretrained_predictions.csv`
+
+### 如何查看最终结果
+
+最终模型对比表：
+
+```bash
+sed -n '1,20p' outputs/results/all_model_comparison.csv
+```
+
+也可以直接打开：
+
+- [all_model_comparison.csv](/home/riversea/nlp-2026/outputs/results/all_model_comparison.csv)
+- [confusion_matrix.png](/home/riversea/nlp-2026/outputs/figures/confusion_matrix.png)
+- [case_study.md](/home/riversea/nlp-2026/outputs/results/case_study.md)
+
+### 常见问题
+
+1. HuggingFace 模型无法下载
+
+请改用本地模型目录：
+
+```bash
+python src/main.py \
+  --config cfg/bert.yaml \
+  --mode train \
+  --output_dir outputs \
+  --model_name_or_path /path/to/local/bert-base-chinese
+```
+
+2. 预训练词向量太大
+
+可以先裁剪到任务词表：
+
+- [textcnn_pretrained_vocab_only.txt](/home/riversea/nlp-2026/outputs/embeddings/textcnn_pretrained_vocab_only.txt)
+- [textcnn_pretrained_vocab_only_stats.json](/home/riversea/nlp-2026/outputs/embeddings/textcnn_pretrained_vocab_only_stats.json)
+
+然后再训练：
+
+```bash
+python src/main.py \
+  --config cfg/textcnn_pretrained.yaml \
+  --mode train \
+  --output_dir outputs \
+  --pretrained_path outputs/embeddings/textcnn_pretrained_vocab_only.txt
+```
+
+3. GPT Prompt 为什么没有参与最终比较
+
+当前第三阶段按实验需要优先完成可复现的判别式模型和 BERT 代码路径，`GPT Prompt` 仍保留接口，但默认不纳入这次最终实验统计。
+
+## 当前说明
+
+- SVM 已完成可训练与可测试版本。
+- TextCNN-Random 已完成可训练与可测试版本。
+- TextCNN-Pretrained 已完成接口与训练逻辑，提供词向量路径后可运行。
+- 第三阶段的最终比较表、混淆矩阵和 case study 已可直接生成。
+- BERT Fine-tuning 已完成训练代码与错误兜底，但是否能直接运行取决于本地或可下载的 HuggingFace 模型。
+- Prompt-BERT 已完成 zero-shot / few-shot 推理框架，但同样依赖可用的 BERT MLM 模型。
+- GPT Prompt 当前为可扩展接口，不会因为缺少 API 或本地模型而导致整个项目失败。

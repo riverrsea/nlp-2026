@@ -2,14 +2,17 @@ experiment_name: prompt_bert
 model_name: prompt_bert
 model_name_or_path: bert-base-chinese
 
+prompt:
+  few_shot_k: 0
+
 data:
   train_file: outputs/data/train.csv
   val_file: outputs/data/val.csv
   test_file: outputs/data/test.csv
-  max_len: 512
+  max_len: 256
 
 model:
-  prompt_template: "这篇文章的主题属于[MASK]。"
+  prompt_template: "这是一篇关于[MASK]的文章：{text}"
   verbalizer:
     art: 艺术
     computer: 计算机
@@ -24,12 +27,12 @@ model:
   num_classes: 10
 
 train:
-  batch_size: 16
-  epochs: 3
+  batch_size: 8
+  epochs: 1
   learning_rate: 2.0e-5
   optimizer: adamw
-  loss: cross_entropy
-  early_stop_patience: 2
+  loss: masked_language_modeling
+  early_stop_patience: 0
   metric_for_best_model: macro_f1
 
 eval:
