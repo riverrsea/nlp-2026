@@ -548,56 +548,67 @@ def save_class_distribution_chart(
     width: int = 1400,
     height: int = 900,
 ) -> None:
-    canvas = SimpleCanvas(width=width, height=height, background=(248, 249, 253))
-    left, top, right, bottom = 120, 120, width - 80, height - 190
-    _draw_axes(canvas, left, top, right, bottom)
-    canvas.draw_text(360, 40, "CLASS DISTRIBUTION", color=(24, 30, 46), scale=4)
+    try:
+        os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+        import matplotlib.pyplot as plt  # type: ignore
+        from matplotlib.font_manager import FontProperties  # type: ignore
+    except Exception:
+        return
 
-    max_count = max(class_counts.values()) if class_counts else 1
-    tick_count = 5
-    for tick in range(tick_count + 1):
-        value = round(max_count * tick / tick_count)
-        y = bottom - round((bottom - top) * tick / tick_count)
-        canvas.draw_line(left - 8, y, right, y, (226, 231, 241))
-        canvas.draw_text(24, y - 10, str(value), color=(80, 87, 102), scale=2)
+    path = Path(output_path)
+    create_dir(path.parent)
+    font_path = Path("font") / "SIMFANG.TTF"
+    font_prop = FontProperties(fname=str(font_path.resolve())) if font_path.exists() else None
 
-    palette = [
-        (62, 122, 201),
-        (234, 111, 90),
-        (97, 189, 109),
-        (242, 177, 52),
-        (131, 96, 195),
-        (53, 171, 169),
-        (227, 91, 148),
-        (120, 127, 230),
-        (82, 177, 83),
-        (169, 117, 85),
-    ]
-
+    label_to_zh = {
+        "art": "艺术",
+        "computer": "计算机",
+        "economy": "经济",
+        "transportation": "交通",
+        "education": "教育",
+        "environment": "环境",
+        "sports": "体育",
+        "military": "军事",
+        "politics": "政治",
+        "medicine": "医药",
+    }
     labels = list(class_counts.keys())
-    count = len(labels)
-    available_width = right - left
-    slot_width = available_width / max(count, 1)
-    bar_width = max(18, int(slot_width * 0.58))
+    display_labels = [label_to_zh.get(label, label) for label in labels]
+    values = [int(class_counts[label]) for label in labels]
+    fig = plt.figure(figsize=(width / 100, height / 100), dpi=100)
+    ax = fig.add_subplot(111)
+    bars = ax.bar(display_labels, values, color="#4a87d7", edgecolor="#2e5fa3")
 
-    for index, label in enumerate(labels):
-        bar_height = round((bottom - top) * class_counts[label] / max_count)
-        x_center = left + int((index + 0.5) * slot_width)
-        x0 = x_center - bar_width // 2
-        x1 = x0 + bar_width
-        y0 = bottom - bar_height
-        color = palette[index % len(palette)]
-        canvas.fill_rect(x0, y0, x1, bottom, color)
-        canvas.draw_text(x0 + 2, y0 - 30, str(class_counts[label]), color=(35, 40, 52), scale=2)
+    for bar, value in zip(bars, values):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height(),
+            str(value),
+            ha="center",
+            va="bottom",
+            fontsize=15,
+            fontproperties=font_prop,
+        )
 
-        label_lines = _split_label(label.upper())
-        for line_index, line in enumerate(label_lines):
-            line_width = len(line) * 12
-            text_x = x_center - line_width // 2
-            text_y = bottom + 25 + line_index * 26
-            canvas.draw_text(text_x, text_y, line, color=(55, 61, 77), scale=2)
+    if font_prop is not None:
+        ax.set_title("类别分布", fontsize=25, pad=18, fontproperties=font_prop)
+        ax.set_xlabel("种类", fontsize=20, labelpad=16, fontproperties=font_prop)
+        ax.set_ylabel("样本数量", fontsize=20, rotation=90, fontproperties=font_prop)
+        for tick in ax.get_xticklabels() + ax.get_yticklabels():
+            tick.set_fontproperties(font_prop)
+    else:
+        ax.set_title("类别分布", fontsize=25, pad=18, fontproperties=font_prop)
+        ax.set_xlabel("种类", fontsize=20, labelpad=16, fontproperties=font_prop)
+        ax.set_ylabel("样本数量", fontsize=20, rotation=90, fontproperties=font_prop)
 
-    canvas.save_png(output_path)
+    # Keep the y-axis title centered on the y-axis and move it slightly right
+    # so it is visible inside the figure area.
+    ax.yaxis.set_label_coords(-0.03, 0.5)
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
+    ax.set_axisbelow(True)
+    fig.subplots_adjust(top=0.88, bottom=0.22, left=0.1, right=0.98)
+    fig.savefig(path)
+    plt.close(fig)
 
 
 def save_length_distribution_chart(
@@ -609,50 +620,23 @@ def save_length_distribution_chart(
 ) -> None:
     if not lengths:
         raise ValueError("Lengths cannot be empty when drawing a histogram.")
+    try:
+        os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+        import matplotlib.pyplot as plt  # type: ignore
+    except Exception:
+        return
 
-    canvas = SimpleCanvas(width=width, height=height, background=(248, 249, 253))
-    left, top, right, bottom = 120, 120, width - 80, height - 140
-    _draw_axes(canvas, left, top, right, bottom)
-    canvas.draw_text(250, 40, "TEXT LENGTH DISTRIBUTION", color=(24, 30, 46), scale=4)
-
-    minimum = min(lengths)
-    maximum = max(lengths)
-    if minimum == maximum:
-        minimum = max(0, minimum - 1)
-        maximum = maximum + 1
-
-    bins = max(5, bins)
-    bin_width = (maximum - minimum) / bins
-    histogram = [0 for _ in range(bins)]
-    for value in lengths:
-        index = int((value - minimum) / bin_width) if bin_width > 0 else 0
-        if index >= bins:
-            index = bins - 1
-        histogram[index] += 1
-
-    max_frequency = max(histogram) if histogram else 1
-    tick_count = 5
-    for tick in range(tick_count + 1):
-        value = round(max_frequency * tick / tick_count)
-        y = bottom - round((bottom - top) * tick / tick_count)
-        canvas.draw_line(left - 8, y, right, y, (226, 231, 241))
-        canvas.draw_text(24, y - 10, str(value), color=(80, 87, 102), scale=2)
-
-    available_width = right - left
-    slot_width = available_width / bins
-    bar_width = max(6, int(slot_width * 0.9))
-    bar_color = (69, 142, 214)
-    for index, frequency in enumerate(histogram):
-        bar_height = round((bottom - top) * frequency / max_frequency) if max_frequency else 0
-        x0 = left + int(index * slot_width)
-        x1 = x0 + bar_width
-        y0 = bottom - bar_height
-        canvas.fill_rect(x0, y0, x1, bottom, bar_color)
-
-    x_ticks = [minimum, round((minimum + maximum) / 2), maximum]
-    x_positions = [left, left + available_width // 2, right - 40]
-    for position, value in zip(x_positions, x_ticks):
-        canvas.draw_text(position, bottom + 28, str(int(value)), color=(80, 87, 102), scale=2)
-
-    canvas.draw_text(470, height - 70, "CHARACTER COUNT", color=(55, 61, 77), scale=3)
-    canvas.save_png(output_path)
+    path = Path(output_path)
+    create_dir(path.parent)
+    fig = plt.figure(figsize=(width / 100, height / 100), dpi=100)
+    ax = fig.add_subplot(111)
+    ax.hist(list(lengths), bins=max(5, int(bins)), color="#4a87d7", edgecolor="#2e5fa3", alpha=0.9)
+    ax.set_title("Text Length Distribution", fontsize=18, pad=18)
+    ax.set_xlabel("Character Count", fontsize=12, labelpad=16)
+    ax.set_ylabel("Frequency", fontsize=12, rotation=90)
+    ax.yaxis.set_label_coords(-0.05, 0.5)
+    ax.grid(axis="y", linestyle="--", alpha=0.3)
+    ax.set_axisbelow(True)
+    fig.subplots_adjust(top=0.88, bottom=0.22, left=0.1, right=0.98)
+    fig.savefig(path)
+    plt.close(fig)

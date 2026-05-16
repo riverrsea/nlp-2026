@@ -1,0 +1,684 @@
+{
+  "status": "success",
+  "mode": "train",
+  "experiment_name": "prompt_bert",
+  "output_name": "prompt_bert",
+  "model_name": "prompt_bert",
+  "data_summary": {
+    "train": {
+      "num_samples": 2252,
+      "class_distribution": {
+        "art": 198,
+        "computer": 160,
+        "economy": 260,
+        "education": 176,
+        "environment": 161,
+        "medicine": 163,
+        "military": 199,
+        "politics": 404,
+        "sports": 360,
+        "transportation": 171
+      }
+    },
+    "val": {
+      "num_samples": 284,
+      "class_distribution": {
+        "art": 25,
+        "computer": 20,
+        "economy": 33,
+        "education": 22,
+        "environment": 20,
+        "medicine": 21,
+        "military": 25,
+        "politics": 51,
+        "sports": 45,
+        "transportation": 22
+      }
+    },
+    "test": {
+      "num_samples": 280,
+      "class_distribution": {
+        "art": 25,
+        "computer": 20,
+        "economy": 32,
+        "education": 22,
+        "environment": 20,
+        "medicine": 20,
+        "military": 25,
+        "politics": 50,
+        "sports": 45,
+        "transportation": 21
+      }
+    }
+  },
+  "metrics": {
+    "val": {
+      "accuracy": 0.739437,
+      "macro_precision": 0.789392,
+      "macro_recall": 0.741942,
+      "macro_f1": 0.735995,
+      "per_class_metrics": {
+        "art": {
+          "label_id": 0,
+          "precision": 0.703704,
+          "recall": 0.76,
+          "f1": 0.730769,
+          "support": 25
+        },
+        "computer": {
+          "label_id": 1,
+          "precision": 0.888889,
+          "recall": 0.4,
+          "f1": 0.551724,
+          "support": 20
+        },
+        "economy": {
+          "label_id": 2,
+          "precision": 0.783784,
+          "recall": 0.878788,
+          "f1": 0.828571,
+          "support": 33
+        },
+        "transportation": {
+          "label_id": 3,
+          "precision": 0.909091,
+          "recall": 0.909091,
+          "f1": 0.909091,
+          "support": 22
+        },
+        "education": {
+          "label_id": 4,
+          "precision": 0.487805,
+          "recall": 0.909091,
+          "f1": 0.634921,
+          "support": 22
+        },
+        "environment": {
+          "label_id": 5,
+          "precision": 0.875,
+          "recall": 0.7,
+          "f1": 0.777778,
+          "support": 20
+        },
+        "sports": {
+          "label_id": 6,
+          "precision": 0.918919,
+          "recall": 0.755556,
+          "f1": 0.829268,
+          "support": 45
+        },
+        "military": {
+          "label_id": 7,
+          "precision": 0.488889,
+          "recall": 0.88,
+          "f1": 0.628571,
+          "support": 25
+        },
+        "politics": {
+          "label_id": 8,
+          "precision": 0.837838,
+          "recall": 0.607843,
+          "f1": 0.704545,
+          "support": 51
+        },
+        "medicine": {
+          "label_id": 9,
+          "precision": 1.0,
+          "recall": 0.619048,
+          "f1": 0.764706,
+          "support": 21
+        }
+      },
+      "classification_report": {
+        "art": {
+          "precision": 0.703704,
+          "recall": 0.76,
+          "f1-score": 0.730769,
+          "support": 25
+        },
+        "computer": {
+          "precision": 0.888889,
+          "recall": 0.4,
+          "f1-score": 0.551724,
+          "support": 20
+        },
+        "economy": {
+          "precision": 0.783784,
+          "recall": 0.878788,
+          "f1-score": 0.828571,
+          "support": 33
+        },
+        "transportation": {
+          "precision": 0.909091,
+          "recall": 0.909091,
+          "f1-score": 0.909091,
+          "support": 22
+        },
+        "education": {
+          "precision": 0.487805,
+          "recall": 0.909091,
+          "f1-score": 0.634921,
+          "support": 22
+        },
+        "environment": {
+          "precision": 0.875,
+          "recall": 0.7,
+          "f1-score": 0.777778,
+          "support": 20
+        },
+        "sports": {
+          "precision": 0.918919,
+          "recall": 0.755556,
+          "f1-score": 0.829268,
+          "support": 45
+        },
+        "military": {
+          "precision": 0.488889,
+          "recall": 0.88,
+          "f1-score": 0.628571,
+          "support": 25
+        },
+        "politics": {
+          "precision": 0.837838,
+          "recall": 0.607843,
+          "f1-score": 0.704545,
+          "support": 51
+        },
+        "medicine": {
+          "precision": 1.0,
+          "recall": 0.619048,
+          "f1-score": 0.764706,
+          "support": 21
+        },
+        "accuracy": 0.739437,
+        "macro avg": {
+          "precision": 0.789392,
+          "recall": 0.741942,
+          "f1-score": 0.735995,
+          "support": 284
+        }
+      },
+      "confusion_matrix": [
+        [
+          19,
+          0,
+          0,
+          0,
+          4,
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          3,
+          8,
+          2,
+          2,
+          3,
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          29,
+          0,
+          2,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          2,
+          20,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          0,
+          0,
+          20,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          4,
+          14,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          4,
+          0,
+          34,
+          7,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          0,
+          22,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          3,
+          0,
+          1,
+          1,
+          1,
+          14,
+          31,
+          0
+        ],
+        [
+          2,
+          0,
+          0,
+          0,
+          2,
+          0,
+          2,
+          1,
+          1,
+          13
+        ]
+      ],
+      "labels": [
+        "art",
+        "computer",
+        "economy",
+        "transportation",
+        "education",
+        "environment",
+        "sports",
+        "military",
+        "politics",
+        "medicine"
+      ]
+    },
+    "test": {
+      "accuracy": 0.764286,
+      "macro_precision": 0.818726,
+      "macro_recall": 0.759695,
+      "macro_f1": 0.765567,
+      "per_class_metrics": {
+        "art": {
+          "label_id": 0,
+          "precision": 0.9375,
+          "recall": 0.6,
+          "f1": 0.731707,
+          "support": 25
+        },
+        "computer": {
+          "label_id": 1,
+          "precision": 0.75,
+          "recall": 0.6,
+          "f1": 0.666667,
+          "support": 20
+        },
+        "economy": {
+          "label_id": 2,
+          "precision": 0.8,
+          "recall": 0.875,
+          "f1": 0.835821,
+          "support": 32
+        },
+        "transportation": {
+          "label_id": 3,
+          "precision": 1.0,
+          "recall": 0.809524,
+          "f1": 0.894737,
+          "support": 21
+        },
+        "education": {
+          "label_id": 4,
+          "precision": 0.444444,
+          "recall": 0.909091,
+          "f1": 0.597015,
+          "support": 22
+        },
+        "environment": {
+          "label_id": 5,
+          "precision": 0.941176,
+          "recall": 0.8,
+          "f1": 0.864865,
+          "support": 20
+        },
+        "sports": {
+          "label_id": 6,
+          "precision": 0.868421,
+          "recall": 0.733333,
+          "f1": 0.795181,
+          "support": 45
+        },
+        "military": {
+          "label_id": 7,
+          "precision": 0.685714,
+          "recall": 0.96,
+          "f1": 0.8,
+          "support": 25
+        },
+        "politics": {
+          "label_id": 8,
+          "precision": 0.76,
+          "recall": 0.76,
+          "f1": 0.76,
+          "support": 50
+        },
+        "medicine": {
+          "label_id": 9,
+          "precision": 1.0,
+          "recall": 0.55,
+          "f1": 0.709677,
+          "support": 20
+        }
+      },
+      "classification_report": {
+        "art": {
+          "precision": 0.9375,
+          "recall": 0.6,
+          "f1-score": 0.731707,
+          "support": 25
+        },
+        "computer": {
+          "precision": 0.75,
+          "recall": 0.6,
+          "f1-score": 0.666667,
+          "support": 20
+        },
+        "economy": {
+          "precision": 0.8,
+          "recall": 0.875,
+          "f1-score": 0.835821,
+          "support": 32
+        },
+        "transportation": {
+          "precision": 1.0,
+          "recall": 0.809524,
+          "f1-score": 0.894737,
+          "support": 21
+        },
+        "education": {
+          "precision": 0.444444,
+          "recall": 0.909091,
+          "f1-score": 0.597015,
+          "support": 22
+        },
+        "environment": {
+          "precision": 0.941176,
+          "recall": 0.8,
+          "f1-score": 0.864865,
+          "support": 20
+        },
+        "sports": {
+          "precision": 0.868421,
+          "recall": 0.733333,
+          "f1-score": 0.795181,
+          "support": 45
+        },
+        "military": {
+          "precision": 0.685714,
+          "recall": 0.96,
+          "f1-score": 0.8,
+          "support": 25
+        },
+        "politics": {
+          "precision": 0.76,
+          "recall": 0.76,
+          "f1-score": 0.76,
+          "support": 50
+        },
+        "medicine": {
+          "precision": 1.0,
+          "recall": 0.55,
+          "f1-score": 0.709677,
+          "support": 20
+        },
+        "accuracy": 0.764286,
+        "macro avg": {
+          "precision": 0.818726,
+          "recall": 0.759695,
+          "f1-score": 0.765567,
+          "support": 280
+        }
+      },
+      "confusion_matrix": [
+        [
+          15,
+          1,
+          0,
+          0,
+          5,
+          0,
+          1,
+          1,
+          2,
+          0
+        ],
+        [
+          0,
+          12,
+          1,
+          0,
+          7,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          28,
+          0,
+          1,
+          0,
+          0,
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          17,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          20,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          16,
+          1,
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          4,
+          0,
+          33,
+          6,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          24,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          5,
+          0,
+          4,
+          0,
+          0,
+          3,
+          38,
+          0
+        ],
+        [
+          1,
+          1,
+          0,
+          0,
+          2,
+          1,
+          2,
+          0,
+          2,
+          11
+        ]
+      ],
+      "labels": [
+        "art",
+        "computer",
+        "economy",
+        "transportation",
+        "education",
+        "environment",
+        "sports",
+        "military",
+        "politics",
+        "medicine"
+      ]
+    }
+  },
+  "prediction_path": "/root/nlp-2026/output/predictions/prompt_bert_few_shot_1_predictions.csv",
+  "few_shot_k": 1,
+  "few_shot_examples_count": 10,
+  "score_preview": [
+    {
+      "art": 0.0015728112641159209,
+      "economy": 0.0013012485752121555,
+      "transportation": 0.00025821500857732397,
+      "education": 0.9491807316291273,
+      "environment": 0.00041814588847035363,
+      "sports": 0.03952750535664266,
+      "military": 0.0015630977099506122,
+      "politics": 0.00556329767071081,
+      "medicine": 2.183932467167203e-05,
+      "computer": 0.0005931075725211514
+    },
+    {
+      "art": 0.12733858653303876,
+      "economy": 0.1891760945525839,
+      "transportation": 0.04094268320946872,
+      "education": 0.2237435789879098,
+      "environment": 0.0328568881213887,
+      "sports": 0.07924871132413522,
+      "military": 0.04921828313783242,
+      "politics": 0.0657947639445874,
+      "medicine": 0.03273584606380088,
+      "computer": 0.15894456412525426
+    },
+    {
+      "art": 0.1461875546772235,
+      "economy": 0.014381485823318869,
+      "transportation": 0.0037715398751095998,
+      "education": 0.7374355517554524,
+      "environment": 0.0036985855177992565,
+      "sports": 0.058358251169793825,
+      "military": 0.016939060480299615,
+      "politics": 0.017378314507179266,
+      "medicine": 0.0009475166450244035,
+      "computer": 0.0009021395487992791
+    },
+    {
+      "art": 0.019470733752809853,
+      "economy": 0.0825631055424678,
+      "transportation": 0.004372447256721471,
+      "education": 0.4304857103043011,
+      "environment": 0.005993788627090929,
+      "sports": 0.17005969940650828,
+      "military": 0.1311520972398729,
+      "politics": 0.14904368676036686,
+      "medicine": 0.0016694456188650246,
+      "computer": 0.005189285490995653
+    },
+    {
+      "art": 0.0013136840467221635,
+      "economy": 0.002637447582020096,
+      "transportation": 0.0005879008980023075,
+      "education": 0.0013860562076483634,
+      "environment": 0.9855018377711363,
+      "sports": 0.0007338788336602879,
+      "military": 0.0005978191147976005,
+      "politics": 0.00360152194873849,
+      "medicine": 0.00020237725330328306,
+      "computer": 0.0034374763439711494
+    }
+  ],
+  "model_name_or_path": "/root/nlp-2026/pretrained_models/bert-base-chinese"
+}

@@ -345,9 +345,9 @@ def main() -> None:
     validate_split_label_coverage("val", val_rows)
     validate_split_label_coverage("test", test_rows)
 
-    write_csv(train_rows, fieldnames, config["paths"]["train_csv"])
-    write_csv(val_rows, fieldnames, config["paths"]["val_csv"])
-    write_csv(test_rows, fieldnames, config["paths"]["test_csv"])
+    # write_csv(train_rows, fieldnames, config["paths"]["train_csv"])
+    # write_csv(val_rows, fieldnames, config["paths"]["val_csv"])
+    # write_csv(test_rows, fieldnames, config["paths"]["test_csv"])
     logger.info(
         "Saved train/val/test splits to %s, %s, %s",
         config["paths"]["train_csv"],

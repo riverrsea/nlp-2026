@@ -174,6 +174,8 @@ python src/main.py --config cfg/svm.yaml --mode train --output_dir outputs
 主要输出：
 
 - `outputs/results/svm_results.json`
+- `outputs/results/svm_test_results.json`
+- `outputs/results/svm_train_results.json`
 - `outputs/predictions/svm_predictions.csv`
 - `outputs/checkpoints/svm/svm_best.ckpt`
 
@@ -207,6 +209,8 @@ python src/main.py --config cfg/textcnn_random.yaml --mode train --output_dir ou
 - `outputs/checkpoints/textcnn_random/textcnn_random_best.ckpt`
 - `outputs/results/textcnn_random_history.json`
 - `outputs/figures/textcnn_random_training_curve.png`
+- `outputs/figures/textcnn_random_loss.png`
+- `outputs/figures/textcnn_random_accuracy.png`
 
 ### 3. TextCNN-Pretrained
 
@@ -242,6 +246,10 @@ python src/main.py \
 - `outputs/results/textcnn_pretrained_results.json`
 - `outputs/predictions/textcnn_pretrained_predictions.csv`
 - `outputs/checkpoints/textcnn_pretrained/textcnn_pretrained_best.ckpt`
+- `outputs/results/textcnn_pretrained_history.json`
+- `outputs/figures/textcnn_pretrained_training_curve.png`
+- `outputs/figures/textcnn_pretrained_loss.png`
+- `outputs/figures/textcnn_pretrained_accuracy.png`
 
 ### 4. BERT Fine-tuning
 
@@ -311,7 +319,7 @@ python src/main.py \
   --config cfg/prompt_bert.yaml \
   --mode train \
   --output_dir outputs \
-  --few_shot_k 2 \
+  --few_shot_k 1 \
   --model_name_or_path pretrained_models/bert-base-chinese
 ```
 
@@ -325,9 +333,9 @@ python src/main.py \
 主要输出：
 
 - `outputs/results/prompt_bert_zero_shot_results.json`
-- `outputs/results/prompt_bert_few_shot_2_results.json`
+- `outputs/results/prompt_bert_few_shot_<k>_results.json`
 - `outputs/predictions/prompt_bert_zero_shot_predictions.csv`
-- `outputs/predictions/prompt_bert_few_shot_2_predictions.csv`
+- `outputs/predictions/prompt_bert_few_shot_<k>_predictions.csv`
 
 ### 6. GPT Prompt Learning 接口
 
@@ -452,28 +460,6 @@ bash scripts/run_stage3_analysis.sh
 - `outputs/results/all_model_comparison.csv`
 - `outputs/figures/confusion_matrix.png`
 - `outputs/results/case_study.md`
-- `outputs/figures/textcnn_random_loss.png`
-- `outputs/figures/textcnn_random_accuracy.png`
-- `outputs/figures/textcnn_pretrained_loss.png`
-- `outputs/figures/textcnn_pretrained_accuracy.png`
-
-模型结果文件：
-
-- `outputs/results/svm_results.json`
-- `outputs/results/textcnn_random_results.json`
-- `outputs/results/textcnn_pretrained_results.json`
-- `outputs/results/bert_results.json`
-- `outputs/results/prompt_bert_zero_shot_results.json`
-- `outputs/results/prompt_bert_few_shot_2_results.json`
-
-模型预测文件：
-
-- `outputs/predictions/svm_predictions.csv`
-- `outputs/predictions/textcnn_random_predictions.csv`
-- `outputs/predictions/textcnn_pretrained_predictions.csv`
-- `outputs/predictions/bert_predictions.csv`
-- `outputs/predictions/prompt_bert_zero_shot_predictions.csv`
-- `outputs/predictions/prompt_bert_few_shot_2_predictions.csv`
 
 ### 如何查看最终结果
 
@@ -505,7 +491,7 @@ python src/main.py \
 
 2. GPT Prompt 为什么没有参与最终比较
 
-当前第三阶段按实验需要优先完成可复现的判别式模型和 BERT 代码路径，`GPT Prompt` 仍保留接口，但默认不纳入这次最终实验统计。
+当前环境没有可用的 GPT API key，因此本项目只保留了 `GPT Prompt` 的接口，未实现真实推理流程，所以不纳入最终实验比较统计。
 
 ## 当前说明
 
