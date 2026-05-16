@@ -444,7 +444,7 @@ MODEL_NAME_OR_PATH=pretrained_models/bert-base-chinese FEW_SHOT_K=0 bash scripts
 7. 运行 Prompt-BERT Few-shot
 
 ```bash
-MODEL_NAME_OR_PATH=pretrained_models/bert-base-chinese FEW_SHOT_K=2 bash scripts/run_prompt_bert.sh
+MODEL_NAME_OR_PATH=pretrained_models/bert-base-chinese FEW_SHOT_K=1 bash scripts/run_prompt_bert.sh
 ```
 
 8. 生成第三阶段最终汇总材料
