@@ -4,12 +4,13 @@ model_name_or_path: bert-base-chinese
 
 prompt:
   few_shot_k: 0
+  example_text_max_chars: 10
 
 data:
   train_file: outputs/data/train.csv
   val_file: outputs/data/val.csv
   test_file: outputs/data/test.csv
-  max_len: 256
+  max_len: 512
 
 model:
   prompt_template: "这是一篇关于[MASK]的文章：{text}"

@@ -9,7 +9,7 @@ if [[ ! -x "$PYTHON_BIN" ]]; then
   PYTHON_BIN="${PYTHON:-python}"
 fi
 
-MODEL_NAME_OR_PATH="${MODEL_NAME_OR_PATH:-bert-base-chinese}"
+MODEL_NAME_OR_PATH="${MODEL_NAME_OR_PATH:-pretrained_models/bert-base-chinese}"
 
 "$PYTHON_BIN" src/main.py \
   --config cfg/bert.yaml \

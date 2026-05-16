@@ -1,0 +1,34 @@
+{
+  "status": "success",
+  "mode": "test",
+  "experiment_name": "svm",
+  "output_name": "svm",
+  "model_name": "svm",
+  "data_summary": {
+    "test": {
+      "num_samples": 280,
+      "class_distribution": {
+        "art": 25,
+        "computer": 20,
+        "economy": 32,
+        "education": 22,
+        "environment": 20,
+        "medicine": 20,
+        "military": 25,
+        "politics": 50,
+        "sports": 45,
+        "transportation": 21
+      }
+    }
+  },
+  "metrics": {
+    "test": {
+      "accuracy": 0.9285714285714286,
+      "macro_precision": 0.9399370503937068,
+      "macro_recall": 0.9197431457431458,
+      "macro_f1": 0.9260842895675294
+    }
+  },
+  "checkpoint_path": "/home/riversea/nlp-2026/outputs/checkpoints/svm/svm_best.ckpt",
+  "prediction_path": "/home/riversea/nlp-2026/outputs/predictions/svm_predictions.csv"
+}

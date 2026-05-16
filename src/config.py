@@ -212,7 +212,11 @@ def _finalize_experiment_config(config: Dict[str, Any]) -> Dict[str, Any]:
 
     output_name = config.get("output_name")
     if output_name is None and config.get("model_name") == "prompt_bert":
-        output_name = "prompt" if prompt_cfg["few_shot_k"] == 0 else "prompt_fewshot"
+        output_name = (
+            "prompt_bert_zero_shot"
+            if prompt_cfg["few_shot_k"] == 0
+            else f"prompt_bert_few_shot_{prompt_cfg['few_shot_k']}"
+        )
     if output_name is None:
         output_name = experiment_name
     paths = config.setdefault("paths", {})
@@ -242,25 +246,25 @@ def _finalize_experiment_config(config: Dict[str, Any]) -> Dict[str, Any]:
     paths["experiment_checkpoint_dir"] = experiment_checkpoint_dir
     paths["results_file"] = results_dir / f"{output_name}_results.json"
     paths["predictions_file"] = predictions_dir / f"{output_name}_predictions.csv"
-    paths["train_results_file"] = results_dir / f"{experiment_name}_train_results.json"
-    paths["test_results_file"] = results_dir / f"{experiment_name}_test_results.json"
+    paths["train_results_file"] = results_dir / f"{output_name}_train_results.json"
+    paths["test_results_file"] = results_dir / f"{output_name}_test_results.json"
     paths["train_framework_note_file"] = (
-        results_dir / f"{experiment_name}_train_framework.json"
+        results_dir / f"{output_name}_train_framework.json"
     )
     paths["test_framework_note_file"] = (
-        results_dir / f"{experiment_name}_test_framework.json"
+        results_dir / f"{output_name}_test_framework.json"
     )
     paths["train_predictions_file"] = (
-        predictions_dir / f"{experiment_name}_train_predictions.csv"
+        predictions_dir / f"{output_name}_train_predictions.csv"
     )
     paths["test_predictions_file"] = (
-        predictions_dir / f"{experiment_name}_test_predictions.csv"
+        predictions_dir / f"{output_name}_test_predictions.csv"
     )
     paths["best_checkpoint_file"] = (
-        experiment_checkpoint_dir / f"{experiment_name}_best.ckpt"
+        experiment_checkpoint_dir / f"{output_name}_best.ckpt"
     )
-    paths["history_file"] = results_dir / f"{experiment_name}_history.json"
-    paths["training_curve_file"] = figures_dir / f"{experiment_name}_training_curve.png"
+    paths["history_file"] = results_dir / f"{output_name}_history.json"
+    paths["training_curve_file"] = figures_dir / f"{output_name}_training_curve.png"
 
     data_cfg = config.setdefault("data", {})
     data_cfg["train_file"] = _resolve_path(data_cfg.get("train_file", "outputs/data/train.csv"))

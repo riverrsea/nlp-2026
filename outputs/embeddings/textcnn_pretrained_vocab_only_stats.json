@@ -1,0 +1,14 @@
+{
+  "source_embedding_path": "sgns.target.word-word.dynwin5.thr10.neg5.dim300.iter5.txt",
+  "trimmed_embedding_path": "outputs/embeddings/textcnn_pretrained_vocab_only.txt",
+  "train_csv": "outputs/data/train.csv",
+  "embedding_dim": 300,
+  "vocab_min_freq": 2,
+  "max_vocab_size": 30000,
+  "target_vocab_size_without_special_tokens": 29998,
+  "matched_token_count": 26360,
+  "unmatched_token_count": 3638,
+  "coverage_ratio": 0.878725,
+  "header_lines_skipped": 1,
+  "source_lines_processed_after_header": 636013
+}

@@ -1,0 +1,9 @@
+﻿model,accuracy,macro_precision,macro_recall,macro_f1
+TF-IDF + SVM,0.928571,0.939937,0.919743,0.926084
+TextCNN-Random,0.867857,0.86276,0.851565,0.855055
+TextCNN-Pretrained,0.907143,0.912744,0.89638,0.898457
+BERT Fine-tuning,0.960714,0.966856,0.961596,0.962403
+BERT Prompt Zero-shot,0.753571,0.808221,0.763137,0.762142
+BERT Prompt Few-shot,0.760714,0.805953,0.756018,0.762175
+GPT Prompt Zero-shot,,,,
+GPT Prompt Few-shot,,,,

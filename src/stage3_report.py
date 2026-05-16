@@ -28,8 +28,8 @@ COMPARISON_ORDER = [
     ("TextCNN-Random", "textcnn_random_results.json"),
     ("TextCNN-Pretrained", "textcnn_pretrained_results.json"),
     ("BERT Fine-tuning", "bert_results.json"),
-    ("BERT Prompt Zero-shot", "prompt_bert_zero_shot_results.json"),
-    ("BERT Prompt Few-shot", "prompt_bert_few_shot_results.json"),
+    ("BERT Prompt Zero-shot", None),
+    ("BERT Prompt Few-shot", None),
     ("GPT Prompt Zero-shot", None),
     ("GPT Prompt Few-shot", None),
 ]
@@ -74,15 +74,21 @@ def collect_prompt_result_files(results_dir: Path) -> list[dict[str, Any]]:
 
 
 def pick_prompt_result(prompt_results: list[dict[str, Any]], model_name: str, few_shot_k: int) -> dict[str, Any] | None:
+    candidates: list[dict[str, Any]] = []
     for item in prompt_results:
         if item.get("model_name") != model_name:
             continue
         item_k = int(item.get("few_shot_k", 0))
         if few_shot_k == 0 and item_k == 0:
-            return item
-        if few_shot_k > 0 and item_k > 0:
-            return item
-    return None
+            candidates.append(item)
+        elif few_shot_k > 0 and item_k > 0:
+            candidates.append(item)
+    if not candidates:
+        return None
+    return sorted(
+        candidates,
+        key=lambda item: (int(item.get("few_shot_k", 0)), str(item.get("_path", ""))),
+    )[-1]
 
 
 def load_result_map(results_dir: Path) -> dict[str, dict[str, Any]]:

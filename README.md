@@ -3,11 +3,8 @@
 本仓库基于 `data/` 目录中的中文文本分类数据集完成课程实验，当前已经完成：
 
 - 第一阶段：数据探索与表征
-- 第二阶段第一部分：整体工程框架构建
-- 第二阶段第二部分：模型建模
-- 第三阶段：训练、验证与测试分析（已完成 SVM、TextCNN-Random、TextCNN-Pretrained）
-
-项目统一使用 `val` 作为验证集命名，不使用 `dev`。
+- 第二阶段：模型建模
+- 第三阶段：训练、验证与测试分析
 
 ## 环境准备
 
@@ -235,6 +232,10 @@ python src/main.py \
 - 仅 Embedding 初始化方式不同
 - 如果没有提供合法的 `pretrained_path`，程序会给出清晰错误提示
 - 支持 Word2Vec / FastText / 腾讯词向量等常见文本格式词向量文件
+- 项目已提供裁剪后的任务专用词向量，可直接使用：
+  `outputs/embeddings/textcnn_pretrained_vocab_only.txt`
+- 对应的裁剪统计信息保存在：
+  `outputs/embeddings/textcnn_pretrained_vocab_only_stats.json`
 
 主要输出：
 
@@ -257,7 +258,7 @@ python src/main.py \
   --config cfg/bert.yaml \
   --mode train \
   --output_dir outputs \
-  --model_name_or_path bert-base-chinese
+  --model_name_or_path pretrained_models/bert-base-chinese
 ```
 
 说明：
@@ -275,7 +276,7 @@ python src/main.py \
   --config cfg/bert.yaml \
   --mode train \
   --output_dir outputs \
-  --model_name_or_path /path/to/local/bert-base-chinese
+  --model_name_or_path pretrained_models/bert-base-chinese
 ```
 
 主要输出：
@@ -299,6 +300,7 @@ python src/main.py \
   --config cfg/prompt_bert.yaml \
   --mode train \
   --output_dir outputs \
+  --model_name_or_path pretrained_models/bert-base-chinese \
   --few_shot_k 0
 ```
 
@@ -310,15 +312,22 @@ python src/main.py \
   --mode train \
   --output_dir outputs \
   --few_shot_k 2 \
-  --model_name_or_path /path/to/local/bert-base-chinese
+  --model_name_or_path pretrained_models/bert-base-chinese
 ```
 
 说明：
 
 - 使用 Masked Language Model
 - Prompt 模板为 `这是一篇关于[MASK]的文章：{text}`
-- few-shot 时从 `train.csv` 中每类抽取 `k` 条样本拼接到 prompt 前缀
+- few-shot 时从 `train.csv` 中每类抽取 `k` 条样本作为紧凑示例
 - 如果 HuggingFace 模型不可用，会给出明确提示
+
+主要输出：
+
+- `outputs/results/prompt_bert_zero_shot_results.json`
+- `outputs/results/prompt_bert_few_shot_2_results.json`
+- `outputs/predictions/prompt_bert_zero_shot_predictions.csv`
+- `outputs/predictions/prompt_bert_few_shot_2_predictions.csv`
 
 ### 6. GPT Prompt Learning 接口
 
@@ -380,8 +389,11 @@ python src/main.py \
 - `TF-IDF + SVM`
 - `TextCNN-Random`
 - `TextCNN-Pretrained`
+- `BERT Fine-tuning`
+- `BERT Prompt Zero-shot`
+- `BERT Prompt Few-shot`
 
-`BERT Fine-tuning` 与 `BERT Prompt` 的代码入口已保留，但如果当前环境缺少可用的本地 HuggingFace 模型，可以暂时不运行；这不会影响前三个模型的复现。当前实验汇总脚本默认跳过 `GPT Prompt`。
+`GPT Prompt` 目前仍保留为可扩展接口，第三阶段汇总脚本默认跳过它。
 
 ### 推荐运行顺序
 
@@ -415,7 +427,19 @@ PRETRAINED_PATH=outputs/embeddings/textcnn_pretrained_vocab_only.txt bash script
 bash scripts/run_bert.sh
 ```
 
-6. 生成第三阶段最终汇总材料
+6. 运行 Prompt-BERT Zero-shot
+
+```bash
+MODEL_NAME_OR_PATH=pretrained_models/bert-base-chinese FEW_SHOT_K=0 bash scripts/run_prompt_bert.sh
+```
+
+7. 运行 Prompt-BERT Few-shot
+
+```bash
+MODEL_NAME_OR_PATH=pretrained_models/bert-base-chinese FEW_SHOT_K=2 bash scripts/run_prompt_bert.sh
+```
+
+8. 生成第三阶段最终汇总材料
 
 ```bash
 bash scripts/run_stage3_analysis.sh
@@ -438,12 +462,18 @@ bash scripts/run_stage3_analysis.sh
 - `outputs/results/svm_results.json`
 - `outputs/results/textcnn_random_results.json`
 - `outputs/results/textcnn_pretrained_results.json`
+- `outputs/results/bert_results.json`
+- `outputs/results/prompt_bert_zero_shot_results.json`
+- `outputs/results/prompt_bert_few_shot_2_results.json`
 
 模型预测文件：
 
 - `outputs/predictions/svm_predictions.csv`
 - `outputs/predictions/textcnn_random_predictions.csv`
 - `outputs/predictions/textcnn_pretrained_predictions.csv`
+- `outputs/predictions/bert_predictions.csv`
+- `outputs/predictions/prompt_bert_zero_shot_predictions.csv`
+- `outputs/predictions/prompt_bert_few_shot_2_predictions.csv`
 
 ### 如何查看最终结果
 
@@ -455,9 +485,9 @@ sed -n '1,20p' outputs/results/all_model_comparison.csv
 
 也可以直接打开：
 
-- [all_model_comparison.csv](/home/riversea/nlp-2026/outputs/results/all_model_comparison.csv)
-- [confusion_matrix.png](/home/riversea/nlp-2026/outputs/figures/confusion_matrix.png)
-- [case_study.md](/home/riversea/nlp-2026/outputs/results/case_study.md)
+- [all_model_comparison.csv](outputs/results/all_model_comparison.csv)
+- [confusion_matrix.png](outputs/figures/confusion_matrix.png)
+- [case_study.md](outputs/results/case_study.md)
 
 ### 常见问题
 
@@ -470,27 +500,10 @@ python src/main.py \
   --config cfg/bert.yaml \
   --mode train \
   --output_dir outputs \
-  --model_name_or_path /path/to/local/bert-base-chinese
+  --model_name_or_path pretrained_models/bert-base-chinese
 ```
 
-2. 预训练词向量太大
-
-可以先裁剪到任务词表：
-
-- [textcnn_pretrained_vocab_only.txt](/home/riversea/nlp-2026/outputs/embeddings/textcnn_pretrained_vocab_only.txt)
-- [textcnn_pretrained_vocab_only_stats.json](/home/riversea/nlp-2026/outputs/embeddings/textcnn_pretrained_vocab_only_stats.json)
-
-然后再训练：
-
-```bash
-python src/main.py \
-  --config cfg/textcnn_pretrained.yaml \
-  --mode train \
-  --output_dir outputs \
-  --pretrained_path outputs/embeddings/textcnn_pretrained_vocab_only.txt
-```
-
-3. GPT Prompt 为什么没有参与最终比较
+2. GPT Prompt 为什么没有参与最终比较
 
 当前第三阶段按实验需要优先完成可复现的判别式模型和 BERT 代码路径，`GPT Prompt` 仍保留接口，但默认不纳入这次最终实验统计。
 
@@ -498,8 +511,8 @@ python src/main.py \
 
 - SVM 已完成可训练与可测试版本。
 - TextCNN-Random 已完成可训练与可测试版本。
-- TextCNN-Pretrained 已完成接口与训练逻辑，提供词向量路径后可运行。
+- TextCNN-Pretrained 已完成接口与训练逻辑，项目中已提供可直接使用的裁剪词向量。
 - 第三阶段的最终比较表、混淆矩阵和 case study 已可直接生成。
-- BERT Fine-tuning 已完成训练代码与错误兜底，但是否能直接运行取决于本地或可下载的 HuggingFace 模型。
-- Prompt-BERT 已完成 zero-shot / few-shot 推理框架，但同样依赖可用的 BERT MLM 模型。
+- BERT Fine-tuning 已完成训练与测试流程，默认可使用本地 `pretrained_models/bert-base-chinese`。
+- Prompt-BERT 已完成 zero-shot / few-shot 实验流程，并已接入第三阶段汇总。
 - GPT Prompt 当前为可扩展接口，不会因为缺少 API 或本地模型而导致整个项目失败。

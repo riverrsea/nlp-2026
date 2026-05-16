@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from math import exp
 
 from trainers.base_trainer import BaseTrainer
@@ -38,102 +39,159 @@ class PromptBertTrainer(BaseTrainer):
             ) from exc
         return tokenizer, model
 
+    def _shorten_example_text(self, text: str) -> str:
+        max_chars = int(self.prompt_config.get("example_text_max_chars", 10))
+        normalized = " ".join(str(text).split())
+        if max_chars <= 0 or len(normalized) <= max_chars:
+            return normalized
+        return normalized[:max_chars] + "..."
+
     def _build_examples_prefix(self, few_shot_examples):
         if not few_shot_examples:
             return ""
 
         verbalizer = self.model_config["verbalizer"]
-        lines = ["下面是一些带标签的示例："]
+        lines = ["参考示例："]
         for example in few_shot_examples:
             label_word = verbalizer[str(example["label"])]
-            lines.append(f"文本：{example['text']}")
-            lines.append(f"类别：{label_word}")
-        lines.append("")
+            snippet = self._shorten_example_text(str(example["text"]))
+            lines.append(f"{snippet} => {label_word}")
         return "\n".join(lines)
 
     def _prepare_verbalizer_token_ids(self, tokenizer):
         verbalizer = self.model_config["verbalizer"]
-        token_ids: dict[int, str] = {}
+        token_ids: dict[int, list[int]] = {}
         for label, label_word in verbalizer.items():
             pieces = tokenizer.encode(label_word, add_special_tokens=False)
             if not pieces:
                 raise ValueError(f"Failed to tokenize label word: {label_word}")
-            token_ids[self.label2id[label]] = label_word
             self.logger.info(
-                "Prompt-BERT verbalizer `%s` uses first token id %s for label `%s`",
+                "Prompt-BERT verbalizer `%s` uses token ids %s for label `%s`",
                 label_word,
-                pieces[0],
+                pieces,
                 label,
             )
-        return {
-            self.label2id[label]: tokenizer.encode(label_word, add_special_tokens=False)[0]
-            for label, label_word in verbalizer.items()
-        }
+            token_ids[self.label2id[label]] = pieces
+        return token_ids
 
-    def _build_prompt(self, text: str, examples_prefix: str, mask_token: str) -> str:
+    def _build_prompt(
+        self,
+        text: str,
+        examples_prefix: str,
+        mask_token: str,
+        num_masks: int,
+    ) -> str:
         template = str(self.model_config["prompt_template"])
-        prompt_body = template.replace("[MASK]", mask_token).format(text=text)
-        return f"{examples_prefix}{prompt_body}" if examples_prefix else prompt_body
+        prompt_body = template.replace("[MASK]", mask_token * num_masks).format(text=text)
+        return f"{prompt_body}\n{examples_prefix}" if examples_prefix else prompt_body
+
+    def _compute_candidate_scores(
+        self,
+        prompts,
+        tokenizer,
+        model,
+        label_token_ids_by_label_id,
+    ):
+        torch_module, _ = self._require_runtime()
+        batch_size = int(self.train_config.get("batch_size", 8))
+        scores_by_row: list[dict[int, float]] = [dict() for _ in prompts["rows"]]
+
+        label_ids_by_mask_length: dict[int, list[int]] = defaultdict(list)
+        for label_id, token_ids in label_token_ids_by_label_id.items():
+            label_ids_by_mask_length[len(token_ids)].append(label_id)
+
+        model.eval()
+        for mask_length, label_ids in sorted(label_ids_by_mask_length.items()):
+            masked_prompts = [
+                self._build_prompt(
+                    text=str(row["text"]),
+                    examples_prefix=prompts["examples_prefix"],
+                    mask_token=tokenizer.mask_token,
+                    num_masks=mask_length,
+                )
+                for row in prompts["rows"]
+            ]
+
+            for start in range(0, len(masked_prompts), batch_size):
+                batch_prompts = masked_prompts[start : start + batch_size]
+                encoded = tokenizer(
+                    batch_prompts,
+                    padding=True,
+                    truncation=True,
+                    max_length=int(self.data_config.get("max_len", 256)),
+                    return_tensors="pt",
+                )
+                encoded = {
+                    key: value.to(self.config["device"]) for key, value in encoded.items()
+                }
+                input_ids = encoded["input_ids"]
+                mask_positions_by_row = []
+                for row_index in range(len(batch_prompts)):
+                    mask_positions = (
+                        input_ids[row_index] == tokenizer.mask_token_id
+                    ).nonzero(as_tuple=False)
+                    positions = [int(item[0].item()) for item in mask_positions]
+                    if len(positions) != mask_length:
+                        raise ValueError(
+                            "Each Prompt-BERT sample must contain exactly the same number "
+                            "of [MASK] tokens as the current verbalizer length."
+                        )
+                    mask_positions_by_row.append(positions)
+
+                with torch_module.no_grad():
+                    logits = model(**encoded).logits
+                    log_probs = logits.log_softmax(dim=-1)
+
+                for row_index in range(len(batch_prompts)):
+                    global_index = start + row_index
+                    positions = mask_positions_by_row[row_index]
+                    for label_id in label_ids:
+                        token_ids = label_token_ids_by_label_id[label_id]
+                        token_log_probs = [
+                            float(log_probs[row_index, position, token_id].item())
+                            for position, token_id in zip(positions, token_ids)
+                        ]
+                        # Use the mean token log-probability to reduce bias against
+                        # longer Chinese label words such as "计算机".
+                        scores_by_row[global_index][label_id] = sum(token_log_probs) / len(
+                            token_log_probs
+                        )
+        return scores_by_row
 
     def _predict_rows(self, rows, tokenizer, model, few_shot_examples):
-        torch_module, _ = self._require_runtime()
         examples_prefix = self._build_examples_prefix(few_shot_examples)
         verbalizer_token_ids = self._prepare_verbalizer_token_ids(tokenizer)
-        prompts = [
-            self._build_prompt(str(row["text"]), examples_prefix, tokenizer.mask_token)
-            for row in rows
-        ]
+        candidate_scores_by_row = self._compute_candidate_scores(
+            prompts={
+                "rows": rows,
+                "examples_prefix": examples_prefix,
+            },
+            tokenizer=tokenizer,
+            model=model,
+            label_token_ids_by_label_id=verbalizer_token_ids,
+        )
 
-        batch_size = int(self.train_config.get("batch_size", 8))
         predictions: list[int] = []
         scores: list[dict[str, float]] = []
-        model.eval()
-
-        for start in range(0, len(prompts), batch_size):
-            batch_prompts = prompts[start : start + batch_size]
-            encoded = tokenizer(
-                batch_prompts,
-                padding=True,
-                truncation=True,
-                max_length=int(self.data_config.get("max_len", 256)),
-                return_tensors="pt",
+        for candidate_scores in candidate_scores_by_row:
+            if not candidate_scores:
+                raise ValueError("Prompt-BERT did not produce any candidate label scores.")
+            max_logit = max(candidate_scores.values())
+            normalized = {
+                label_id: exp(score - max_logit) for label_id, score in candidate_scores.items()
+            }
+            denominator = sum(normalized.values()) or 1.0
+            normalized = {
+                label_id: value / denominator for label_id, value in normalized.items()
+            }
+            predicted_label_id = max(normalized, key=normalized.get)
+            predictions.append(predicted_label_id)
+            scores.append(
+                {
+                    self.id2label[label_id]: float(probability)
+                    for label_id, probability in normalized.items()
+                }
             )
-            encoded = {key: value.to(self.config["device"]) for key, value in encoded.items()}
-            input_ids = encoded["input_ids"]
-            mask_positions = (input_ids == tokenizer.mask_token_id).nonzero(as_tuple=False)
-            if mask_positions.size(0) != len(batch_prompts):
-                raise ValueError(
-                    "Each Prompt-BERT sample must contain exactly one [MASK] token after tokenization."
-                )
-
-            with torch_module.no_grad():
-                logits = model(**encoded).logits
-
-            for row_index in range(len(batch_prompts)):
-                mask_position = int(mask_positions[row_index, 1].item())
-                mask_logits = logits[row_index, mask_position]
-                candidate_scores = {
-                    label_id: float(mask_logits[token_id].item())
-                    for label_id, token_id in verbalizer_token_ids.items()
-                }
-                max_logit = max(candidate_scores.values())
-                normalized = {
-                    label_id: exp(score - max_logit)
-                    for label_id, score in candidate_scores.items()
-                }
-                denominator = sum(normalized.values()) or 1.0
-                normalized = {
-                    label_id: value / denominator
-                    for label_id, value in normalized.items()
-                }
-                predicted_label_id = max(normalized, key=normalized.get)
-                predictions.append(predicted_label_id)
-                scores.append(
-                    {
-                        self.id2label[label_id]: float(probability)
-                        for label_id, probability in normalized.items()
-                    }
-                )
         return predictions, scores
 
     def _run_prompt_evaluation(self, include_val: bool):

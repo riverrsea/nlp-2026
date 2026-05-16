@@ -1,0 +1,634 @@
+{
+  "status": "success",
+  "mode": "train",
+  "experiment_name": "svm",
+  "output_name": "svm",
+  "model_name": "svm",
+  "data_summary": {
+    "train": {
+      "num_samples": 2252,
+      "class_distribution": {
+        "art": 198,
+        "computer": 160,
+        "economy": 260,
+        "education": 176,
+        "environment": 161,
+        "medicine": 163,
+        "military": 199,
+        "politics": 404,
+        "sports": 360,
+        "transportation": 171
+      }
+    },
+    "val": {
+      "num_samples": 284,
+      "class_distribution": {
+        "art": 25,
+        "computer": 20,
+        "economy": 33,
+        "education": 22,
+        "environment": 20,
+        "medicine": 21,
+        "military": 25,
+        "politics": 51,
+        "sports": 45,
+        "transportation": 22
+      }
+    },
+    "test": {
+      "num_samples": 280,
+      "class_distribution": {
+        "art": 25,
+        "computer": 20,
+        "economy": 32,
+        "education": 22,
+        "environment": 20,
+        "medicine": 20,
+        "military": 25,
+        "politics": 50,
+        "sports": 45,
+        "transportation": 21
+      }
+    }
+  },
+  "metrics": {
+    "val": {
+      "accuracy": 0.964789,
+      "macro_precision": 0.971077,
+      "macro_recall": 0.95844,
+      "macro_f1": 0.964112,
+      "per_class_metrics": {
+        "art": {
+          "label_id": 0,
+          "precision": 0.96,
+          "recall": 0.96,
+          "f1": 0.96,
+          "support": 25
+        },
+        "computer": {
+          "label_id": 1,
+          "precision": 0.95,
+          "recall": 0.95,
+          "f1": 0.95,
+          "support": 20
+        },
+        "economy": {
+          "label_id": 2,
+          "precision": 0.941176,
+          "recall": 0.969697,
+          "f1": 0.955224,
+          "support": 33
+        },
+        "transportation": {
+          "label_id": 3,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 22
+        },
+        "education": {
+          "label_id": 4,
+          "precision": 0.954545,
+          "recall": 0.954545,
+          "f1": 0.954545,
+          "support": 22
+        },
+        "environment": {
+          "label_id": 5,
+          "precision": 1.0,
+          "recall": 0.9,
+          "f1": 0.947368,
+          "support": 20
+        },
+        "sports": {
+          "label_id": 6,
+          "precision": 0.977778,
+          "recall": 0.977778,
+          "f1": 0.977778,
+          "support": 45
+        },
+        "military": {
+          "label_id": 7,
+          "precision": 1.0,
+          "recall": 0.92,
+          "f1": 0.958333,
+          "support": 25
+        },
+        "politics": {
+          "label_id": 8,
+          "precision": 0.927273,
+          "recall": 1.0,
+          "f1": 0.962264,
+          "support": 51
+        },
+        "medicine": {
+          "label_id": 9,
+          "precision": 1.0,
+          "recall": 0.952381,
+          "f1": 0.97561,
+          "support": 21
+        }
+      },
+      "classification_report": {
+        "art": {
+          "precision": 0.96,
+          "recall": 0.96,
+          "f1-score": 0.96,
+          "support": 25
+        },
+        "computer": {
+          "precision": 0.95,
+          "recall": 0.95,
+          "f1-score": 0.95,
+          "support": 20
+        },
+        "economy": {
+          "precision": 0.941176,
+          "recall": 0.969697,
+          "f1-score": 0.955224,
+          "support": 33
+        },
+        "transportation": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 22
+        },
+        "education": {
+          "precision": 0.954545,
+          "recall": 0.954545,
+          "f1-score": 0.954545,
+          "support": 22
+        },
+        "environment": {
+          "precision": 1.0,
+          "recall": 0.9,
+          "f1-score": 0.947368,
+          "support": 20
+        },
+        "sports": {
+          "precision": 0.977778,
+          "recall": 0.977778,
+          "f1-score": 0.977778,
+          "support": 45
+        },
+        "military": {
+          "precision": 1.0,
+          "recall": 0.92,
+          "f1-score": 0.958333,
+          "support": 25
+        },
+        "politics": {
+          "precision": 0.927273,
+          "recall": 1.0,
+          "f1-score": 0.962264,
+          "support": 51
+        },
+        "medicine": {
+          "precision": 1.0,
+          "recall": 0.952381,
+          "f1-score": 0.97561,
+          "support": 21
+        },
+        "accuracy": 0.964789,
+        "macro avg": {
+          "precision": 0.971077,
+          "recall": 0.95844,
+          "f1-score": 0.964112,
+          "support": 284
+        }
+      },
+      "confusion_matrix": [
+        [
+          24,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          19,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          32,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          22,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          21,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0,
+          18,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          44,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          23,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          51,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          20
+        ]
+      ],
+      "labels": [
+        "art",
+        "computer",
+        "economy",
+        "transportation",
+        "education",
+        "environment",
+        "sports",
+        "military",
+        "politics",
+        "medicine"
+      ]
+    },
+    "test": {
+      "accuracy": 0.928571,
+      "macro_precision": 0.939937,
+      "macro_recall": 0.919743,
+      "macro_f1": 0.926084,
+      "per_class_metrics": {
+        "art": {
+          "label_id": 0,
+          "precision": 0.857143,
+          "recall": 0.96,
+          "f1": 0.90566,
+          "support": 25
+        },
+        "computer": {
+          "label_id": 1,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 20
+        },
+        "economy": {
+          "label_id": 2,
+          "precision": 0.820513,
+          "recall": 1.0,
+          "f1": 0.901408,
+          "support": 32
+        },
+        "transportation": {
+          "label_id": 3,
+          "precision": 1.0,
+          "recall": 0.952381,
+          "f1": 0.97561,
+          "support": 21
+        },
+        "education": {
+          "label_id": 4,
+          "precision": 1.0,
+          "recall": 0.727273,
+          "f1": 0.842105,
+          "support": 22
+        },
+        "environment": {
+          "label_id": 5,
+          "precision": 1.0,
+          "recall": 0.9,
+          "f1": 0.947368,
+          "support": 20
+        },
+        "sports": {
+          "label_id": 6,
+          "precision": 0.977778,
+          "recall": 0.977778,
+          "f1": 0.977778,
+          "support": 45
+        },
+        "military": {
+          "label_id": 7,
+          "precision": 0.875,
+          "recall": 0.84,
+          "f1": 0.857143,
+          "support": 25
+        },
+        "politics": {
+          "label_id": 8,
+          "precision": 0.921569,
+          "recall": 0.94,
+          "f1": 0.930693,
+          "support": 50
+        },
+        "medicine": {
+          "label_id": 9,
+          "precision": 0.947368,
+          "recall": 0.9,
+          "f1": 0.923077,
+          "support": 20
+        }
+      },
+      "classification_report": {
+        "art": {
+          "precision": 0.857143,
+          "recall": 0.96,
+          "f1-score": 0.90566,
+          "support": 25
+        },
+        "computer": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 20
+        },
+        "economy": {
+          "precision": 0.820513,
+          "recall": 1.0,
+          "f1-score": 0.901408,
+          "support": 32
+        },
+        "transportation": {
+          "precision": 1.0,
+          "recall": 0.952381,
+          "f1-score": 0.97561,
+          "support": 21
+        },
+        "education": {
+          "precision": 1.0,
+          "recall": 0.727273,
+          "f1-score": 0.842105,
+          "support": 22
+        },
+        "environment": {
+          "precision": 1.0,
+          "recall": 0.9,
+          "f1-score": 0.947368,
+          "support": 20
+        },
+        "sports": {
+          "precision": 0.977778,
+          "recall": 0.977778,
+          "f1-score": 0.977778,
+          "support": 45
+        },
+        "military": {
+          "precision": 0.875,
+          "recall": 0.84,
+          "f1-score": 0.857143,
+          "support": 25
+        },
+        "politics": {
+          "precision": 0.921569,
+          "recall": 0.94,
+          "f1-score": 0.930693,
+          "support": 50
+        },
+        "medicine": {
+          "precision": 0.947368,
+          "recall": 0.9,
+          "f1-score": 0.923077,
+          "support": 20
+        },
+        "accuracy": 0.928571,
+        "macro avg": {
+          "precision": 0.939937,
+          "recall": 0.919743,
+          "f1-score": 0.926084,
+          "support": 280
+        }
+      },
+      "confusion_matrix": [
+        [
+          24,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          20,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          32,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          20,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          1,
+          0,
+          16,
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          18,
+          0,
+          1,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          44,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          21,
+          3,
+          0
+        ],
+        [
+          0,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          47,
+          0
+        ],
+        [
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          18
+        ]
+      ],
+      "labels": [
+        "art",
+        "computer",
+        "economy",
+        "transportation",
+        "education",
+        "environment",
+        "sports",
+        "military",
+        "politics",
+        "medicine"
+      ]
+    }
+  },
+  "best_metric": "macro_f1",
+  "best_metric_value": 0.964112,
+  "checkpoint_path": "/home/riversea/nlp-2026/outputs/checkpoints/svm/svm_best.ckpt",
+  "prediction_path": "/home/riversea/nlp-2026/outputs/predictions/svm_predictions.csv",
+  "model_config": {
+    "tokenizer": "jieba",
+    "max_features": 50000,
+    "ngram_range": [
+      1,
+      2
+    ],
+    "min_df": 2,
+    "c": 1.0,
+    "kernel": "linear",
+    "num_classes": 10
+  }
+}

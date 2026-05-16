@@ -1,6 +1,8 @@
 *.zip
-data/**
+data/*.bak
 .venv/
 **/__pycache__/
-outputs/
+outputs/checkpoints/
+.codex
+.agents/
 pretrained_models/

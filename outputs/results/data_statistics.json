@@ -1,0 +1,201 @@
+{
+  "total_samples": 2816,
+  "num_classes": 10,
+  "class_distribution": {
+    "art": {
+      "label_id": 0,
+      "count": 248,
+      "ratio": 0.088068
+    },
+    "computer": {
+      "label_id": 1,
+      "count": 200,
+      "ratio": 0.071023
+    },
+    "economy": {
+      "label_id": 2,
+      "count": 325,
+      "ratio": 0.115412
+    },
+    "transportation": {
+      "label_id": 3,
+      "count": 214,
+      "ratio": 0.075994
+    },
+    "education": {
+      "label_id": 4,
+      "count": 220,
+      "ratio": 0.078125
+    },
+    "environment": {
+      "label_id": 5,
+      "count": 201,
+      "ratio": 0.071378
+    },
+    "sports": {
+      "label_id": 6,
+      "count": 450,
+      "ratio": 0.159801
+    },
+    "military": {
+      "label_id": 7,
+      "count": 249,
+      "ratio": 0.088423
+    },
+    "politics": {
+      "label_id": 8,
+      "count": 505,
+      "ratio": 0.179332
+    },
+    "medicine": {
+      "label_id": 9,
+      "count": 204,
+      "ratio": 0.072443
+    }
+  },
+  "length_statistics": {
+    "character_count": {
+      "min": 55,
+      "max": 45877,
+      "mean": 1066.9244,
+      "median": 539.5,
+      "q50": 539.5,
+      "q75": 1033.25,
+      "q90": 2191.0,
+      "q95": 3847.5
+    }
+  },
+  "label2id": {
+    "art": 0,
+    "computer": 1,
+    "economy": 2,
+    "transportation": 3,
+    "education": 4,
+    "environment": 5,
+    "sports": 6,
+    "military": 7,
+    "politics": 8,
+    "medicine": 9
+  },
+  "id2label": {
+    "0": "art",
+    "1": "computer",
+    "2": "economy",
+    "3": "transportation",
+    "4": "education",
+    "5": "environment",
+    "6": "sports",
+    "7": "military",
+    "8": "politics",
+    "9": "medicine"
+  },
+  "split_statistics": {
+    "train": {
+      "num_samples": 2252,
+      "class_distribution": {
+        "art": {
+          "count": 198
+        },
+        "computer": {
+          "count": 160
+        },
+        "economy": {
+          "count": 260
+        },
+        "transportation": {
+          "count": 171
+        },
+        "education": {
+          "count": 176
+        },
+        "environment": {
+          "count": 161
+        },
+        "sports": {
+          "count": 360
+        },
+        "military": {
+          "count": 199
+        },
+        "politics": {
+          "count": 404
+        },
+        "medicine": {
+          "count": 163
+        }
+      }
+    },
+    "val": {
+      "num_samples": 284,
+      "class_distribution": {
+        "art": {
+          "count": 25
+        },
+        "computer": {
+          "count": 20
+        },
+        "economy": {
+          "count": 33
+        },
+        "transportation": {
+          "count": 22
+        },
+        "education": {
+          "count": 22
+        },
+        "environment": {
+          "count": 20
+        },
+        "sports": {
+          "count": 45
+        },
+        "military": {
+          "count": 25
+        },
+        "politics": {
+          "count": 51
+        },
+        "medicine": {
+          "count": 21
+        }
+      }
+    },
+    "test": {
+      "num_samples": 280,
+      "class_distribution": {
+        "art": {
+          "count": 25
+        },
+        "computer": {
+          "count": 20
+        },
+        "economy": {
+          "count": 32
+        },
+        "transportation": {
+          "count": 21
+        },
+        "education": {
+          "count": 22
+        },
+        "environment": {
+          "count": 20
+        },
+        "sports": {
+          "count": 45
+        },
+        "military": {
+          "count": 25
+        },
+        "politics": {
+          "count": 50
+        },
+        "medicine": {
+          "count": 20
+        }
+      }
+    }
+  },
+  "failed_files_count": 0,
+  "failed_files": []
+}
